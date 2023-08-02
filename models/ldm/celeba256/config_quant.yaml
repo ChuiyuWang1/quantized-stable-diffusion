@@ -32,6 +32,8 @@ model:
         - 3
         - 4
         num_head_channels: 32
+        quant_config: 
+          target: ldm.modules.quant_config.UNetQuantConfig
     first_stage_config:
       target: ldm.models.autoencoder.VQModelInterface
       params:

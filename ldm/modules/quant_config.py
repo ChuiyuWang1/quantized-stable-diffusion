@@ -1,4 +1,4 @@
-class QuantConfig():
+class UNetQuantConfig():
     def __init__(self) -> None:
         self.quant_config = {}
         self.config_keys = [

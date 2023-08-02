@@ -41,6 +41,7 @@ class AttentionPool2d(nn.Module):
         embed_dim: int,
         num_heads_channels: int,
         output_dim: int = None,
+        quant_config = None,
     ):
         super().__init__()
         self.positional_embedding = nn.Parameter(th.randn(embed_dim, spacial_dim ** 2 + 1) / embed_dim ** 0.5)
@@ -104,7 +105,7 @@ class Upsample(nn.Module):
                  upsampling occurs in the inner-two dimensions.
     """
 
-    def __init__(self, channels, use_conv, dims=2, out_channels=None, padding=1):
+    def __init__(self, channels, use_conv, dims=2, out_channels=None, padding=1, quant_config=None):
         super().__init__()
         self.channels = channels
         self.out_channels = out_channels or channels
@@ -150,7 +151,7 @@ class Downsample(nn.Module):
                  downsampling occurs in the inner-two dimensions.
     """
 
-    def __init__(self, channels, use_conv, dims=2, out_channels=None,padding=1):
+    def __init__(self, channels, use_conv, dims=2, out_channels=None,padding=1, quant_config=None):
         super().__init__()
         self.channels = channels
         self.out_channels = out_channels or channels
@@ -204,6 +205,7 @@ class ResBlock(TimestepBlock):
         use_checkpoint=False,
         up=False,
         down=False,
+        quant_config=None,
     ):
         super().__init__()
         self.channels = channels
@@ -325,6 +327,7 @@ class AttentionBlock(nn.Module):
         num_head_channels=-1,
         use_checkpoint=False,
         use_new_attention_order=False,
+        quant_config=None,
     ):
         super().__init__()
         self.channels = channels
@@ -499,7 +502,7 @@ class UNetModel(nn.Module):
         use_fp16=False,
         num_heads=-1,
         num_head_channels=-1,
-        quant_config=None,
+        quant_config=None,                # quantization configuration
         num_heads_upsample=-1,
         use_scale_shift_norm=False,
         resblock_updown=False,
@@ -582,6 +585,7 @@ class UNetModel(nn.Module):
                         dims=dims,
                         use_checkpoint=use_checkpoint,
                         use_scale_shift_norm=use_scale_shift_norm,
+                        quant_config=quant_config,
                     )
                 ]
                 ch = mult * model_channels
@@ -601,6 +605,7 @@ class UNetModel(nn.Module):
                             num_heads=num_heads,
                             num_head_channels=dim_head,
                             use_new_attention_order=use_new_attention_order,
+                            quant_config=quant_config,
                         ) if not use_spatial_transformer else SpatialTransformer(
                             ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim
                         )
@@ -621,10 +626,11 @@ class UNetModel(nn.Module):
                             use_checkpoint=use_checkpoint,
                             use_scale_shift_norm=use_scale_shift_norm,
                             down=True,
+                            quant_config=quant_config,
                         )
                         if resblock_updown
                         else Downsample(
-                            ch, conv_resample, dims=dims, out_channels=out_ch
+                            ch, conv_resample, dims=dims, out_channels=out_ch, quant_config=quant_config
                         )
                     )
                 )
@@ -649,6 +655,7 @@ class UNetModel(nn.Module):
                 dims=dims,
                 use_checkpoint=use_checkpoint,
                 use_scale_shift_norm=use_scale_shift_norm,
+                quant_config=quant_config,
             ),
             AttentionBlock(
                 ch,
@@ -656,6 +663,7 @@ class UNetModel(nn.Module):
                 num_heads=num_heads,
                 num_head_channels=dim_head,
                 use_new_attention_order=use_new_attention_order,
+                quant_config=quant_config,
             ) if not use_spatial_transformer else SpatialTransformer(
                             ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim
                         ),
@@ -666,6 +674,7 @@ class UNetModel(nn.Module):
                 dims=dims,
                 use_checkpoint=use_checkpoint,
                 use_scale_shift_norm=use_scale_shift_norm,
+                quant_config=quant_config,
             ),
         )
         self._feature_size += ch
@@ -683,6 +692,7 @@ class UNetModel(nn.Module):
                         dims=dims,
                         use_checkpoint=use_checkpoint,
                         use_scale_shift_norm=use_scale_shift_norm,
+                        quant_config=quant_config,
                     )
                 ]
                 ch = model_channels * mult
@@ -702,6 +712,7 @@ class UNetModel(nn.Module):
                             num_heads=num_heads_upsample,
                             num_head_channels=dim_head,
                             use_new_attention_order=use_new_attention_order,
+                            quant_config=quant_config,
                         ) if not use_spatial_transformer else SpatialTransformer(
                             ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim
                         )
@@ -718,9 +729,10 @@ class UNetModel(nn.Module):
                             use_checkpoint=use_checkpoint,
                             use_scale_shift_norm=use_scale_shift_norm,
                             up=True,
+                            quant_config=quant_config,
                         )
                         if resblock_updown
-                        else Upsample(ch, conv_resample, dims=dims, out_channels=out_ch)
+                        else Upsample(ch, conv_resample, dims=dims, out_channels=out_ch, quant_config=quant_config)
                     )
                     ds //= 2
                 self.output_blocks.append(TimestepEmbedSequential(*layers))
@@ -817,6 +829,7 @@ class EncoderUNetModel(nn.Module):
         num_heads=1,
         num_head_channels=-1,
         num_heads_upsample=-1,
+        quant_config=None,
         use_scale_shift_norm=False,
         resblock_updown=False,
         use_new_attention_order=False,
@@ -877,6 +890,7 @@ class EncoderUNetModel(nn.Module):
                         dims=dims,
                         use_checkpoint=use_checkpoint,
                         use_scale_shift_norm=use_scale_shift_norm,
+                        quant_config=quant_config,
                     )
                 ]
                 ch = mult * model_channels
@@ -888,6 +902,7 @@ class EncoderUNetModel(nn.Module):
                             num_heads=num_heads,
                             num_head_channels=num_head_channels,
                             use_new_attention_order=use_new_attention_order,
+                            quant_config=quant_config,
                         )
                     )
                 self.input_blocks.append(TimestepEmbedSequential(*layers))
@@ -906,10 +921,11 @@ class EncoderUNetModel(nn.Module):
                             use_checkpoint=use_checkpoint,
                             use_scale_shift_norm=use_scale_shift_norm,
                             down=True,
+                            quant_config=quant_config,
                         )
                         if resblock_updown
                         else Downsample(
-                            ch, conv_resample, dims=dims, out_channels=out_ch
+                            ch, conv_resample, dims=dims, out_channels=out_ch, quant_config=quant_config
                         )
                     )
                 )
@@ -926,6 +942,7 @@ class EncoderUNetModel(nn.Module):
                 dims=dims,
                 use_checkpoint=use_checkpoint,
                 use_scale_shift_norm=use_scale_shift_norm,
+                quant_config=quant_config,
             ),
             AttentionBlock(
                 ch,
@@ -933,6 +950,7 @@ class EncoderUNetModel(nn.Module):
                 num_heads=num_heads,
                 num_head_channels=num_head_channels,
                 use_new_attention_order=use_new_attention_order,
+                quant_config=quant_config,
             ),
             ResBlock(
                 ch,
@@ -941,6 +959,7 @@ class EncoderUNetModel(nn.Module):
                 dims=dims,
                 use_checkpoint=use_checkpoint,
                 use_scale_shift_norm=use_scale_shift_norm,
+                quant_config=quant_config,
             ),
         )
         self._feature_size += ch
@@ -962,7 +981,7 @@ class EncoderUNetModel(nn.Module):
                 normalization(ch),
                 nn.SiLU(),
                 AttentionPool2d(
-                    (image_size // ds), ch, num_head_channels, out_channels
+                    (image_size // ds), ch, num_head_channels, out_channels, quant_config=quant_config
                 ),
             )
         elif pool == "spatial":
