@@ -45,12 +45,12 @@ class AttentionPool2d(nn.Module):
         super().__init__()
         self.positional_embedding = nn.Parameter(th.randn(embed_dim, spacial_dim ** 2 + 1) / embed_dim ** 0.5)
         #self.qkv_proj = conv_nd(1, embed_dim, 3 * embed_dim, 1)
-        self.qkv_proj = get_quantized_cls("conv1d", quant_config["attpool_qkv"])(
-            embed_dim, 3 * embed_dim, 1, config=quant_config["attpool_qkv"]
+        self.qkv_proj = get_quantized_cls("conv1d", quant_config.get("attpool_qkv"))(
+            embed_dim, 3 * embed_dim, 1, config=quant_config.get("attpool_qkv")
         )
         #self.c_proj = conv_nd(1, embed_dim, output_dim or embed_dim, 1)
-        self.c_proj = get_quantized_cls("conv1d", quant_config["attpool_c"])(
-            embed_dim, 3 * embed_dim, 1, config=quant_config["attpool_c"]
+        self.c_proj = get_quantized_cls("conv1d", quant_config.get("attpool_c"))(
+            embed_dim, output_dim or embed_dim, 1, config=quant_config.get("attpool_c")
         )
         self.num_heads = embed_dim // num_heads_channels
         self.attention = QKVAttention(self.num_heads)
@@ -112,8 +112,8 @@ class Upsample(nn.Module):
         self.dims = dims
         if use_conv:
             # self.conv = conv_nd(dims, self.channels, self.out_channels, 3, padding=padding)
-            self.conv = get_quantized_cls("conv2d", quant_config["upsample"])(
-                self.channels, self.out_channels, 3, padding=padding, config=quant_config["upsample"]
+            self.conv = get_quantized_cls("conv2d", quant_config.get("upsample"))(
+                self.channels, self.out_channels, 3, padding=padding, config=quant_config.get("upsample")
             )
 
     def forward(self, x):
@@ -161,12 +161,15 @@ class Downsample(nn.Module):
             # self.op = conv_nd(
             #     dims, self.channels, self.out_channels, 3, stride=stride, padding=padding
             # )
-            self.op = get_quantized_cls("conv2d", quant_config["downsample"])(
-                self.channels, self.out_channels, 3, stride=stride, padding=padding, config=quant_config["downsample"]
+            self.op = get_quantized_cls("conv2d", quant_config.get("downsample"))(
+                self.channels, self.out_channels, 3, stride=stride, padding=padding, config=quant_config.get("downsample")
             )
         else:
             assert self.channels == self.out_channels
-            self.op = avg_pool_nd(dims, kernel_size=stride, stride=stride)
+            # self.op = avg_pool_nd(dims, kernel_size=stride, stride=stride)
+            self.op = get_quantized_cls("avg_pool2d", quant_config.get("avg_pool2d"))(
+                kernel_size=stride, stride=stride, config=quant_config.get("avg_pool2d")
+            )
 
     def forward(self, x):
         assert x.shape[1] == self.channels
@@ -213,11 +216,12 @@ class ResBlock(TimestepBlock):
 
         self.in_layers = nn.Sequential(
             normalization(channels),
-            nn.SiLU(),
+            # nn.SiLU(),
+            get_quantized_cls("silu", quant_config.get("silu_res_in"))(config=quant_config.get("silu_res_in")),
             # conv_nd(dims, channels, self.out_channels, 3, padding=1),
-            get_quantized_cls("conv2d", quant_config["resblockin"])(
-                channels, self.out_channels, 3, padding=1, config=quant_config["resblockin"]
-            )
+            get_quantized_cls("conv2d", quant_config.get("resblock_in"))(
+                channels, self.out_channels, 3, padding=1, config=quant_config.get("resblock_in")
+            ),
         )
 
         self.updown = up or down
@@ -232,25 +236,27 @@ class ResBlock(TimestepBlock):
             self.h_upd = self.x_upd = nn.Identity()
 
         self.emb_layers = nn.Sequential(
-            nn.SiLU(),
+            # nn.SiLU(),
+            get_quantized_cls("silu", quant_config.get("silu_res_emb"))(config=quant_config.get("silu_res_emb")),
             # linear(
             #     emb_channels,
             #     2 * self.out_channels if use_scale_shift_norm else self.out_channels,
             # ),
-            get_quantized_cls("linear", quant_config["resblockemb"])(
+            get_quantized_cls("linear", quant_config.get("resblock_emb"))(
                 emb_channels,
                 2 * self.out_channels if use_scale_shift_norm else self.out_channels,
-                config=quant_config["resblockemb"]
+                config=quant_config.get("resblock_emb")
             )
         )
         self.out_layers = nn.Sequential(
             normalization(self.out_channels),
-            nn.SiLU(),
+            # nn.SiLU(),
+            get_quantized_cls("silu", quant_config.get("silu_res_out"))(config=quant_config.get("silu_res_out")),
             nn.Dropout(p=dropout),
             zero_module(
                 # conv_nd(dims, self.out_channels, self.out_channels, 3, padding=1)
-                get_quantized_cls("conv2d", quant_config["resblockout"])(
-                    self.out_channels, self.out_channels, 3, padding=1, config=quant_config["resblockout"]
+                get_quantized_cls("conv2d", quant_config.get("resblock_out"))(
+                    self.out_channels, self.out_channels, 3, padding=1, config=quant_config.get("resblock_out")
                 )
             ),
         )
@@ -261,13 +267,13 @@ class ResBlock(TimestepBlock):
             # self.skip_connection = conv_nd(
             #     dims, channels, self.out_channels, 3, padding=1
             # )
-            self.skip_connection = get_quantized_cls("conv2d", quant_config["resblockskip"])(
-                channels, self.out_channels, 3, padding=1, config=quant_config["resblockskip"]
+            self.skip_connection = get_quantized_cls("conv2d", quant_config.get("resblock_skip"))(
+                channels, self.out_channels, 3, padding=1, config=quant_config.get("resblock_skip")
             )
         else:
             # self.skip_connection = conv_nd(dims, channels, self.out_channels, 1)
-            self.skip_connection = get_quantized_cls("conv2d", quant_config["resblockskip"])(
-                channels, self.out_channels, 1, config=quant_config["resblockskip"]
+            self.skip_connection = get_quantized_cls("conv2d", quant_config.get("resblock_skip"))(
+                channels, self.out_channels, 1, config=quant_config.get("resblock_skip")
             )
 
     def forward(self, x, emb):
@@ -332,8 +338,8 @@ class AttentionBlock(nn.Module):
         self.use_checkpoint = use_checkpoint
         self.norm = normalization(channels)
         # self.qkv = conv_nd(1, channels, channels * 3, 1)
-        self.qkv = get_quantized_cls("conv1d", quant_config["attblockqkv"])(
-            channels, channels * 3, 1, config=quant_config["attblockqkv"]
+        self.qkv = get_quantized_cls("conv1d", quant_config.get("attblock_qkv"))(
+            channels, channels * 3, 1, config=quant_config.get("attblock_qkv")
         )
         if use_new_attention_order:
             # split qkv before split heads
@@ -344,7 +350,7 @@ class AttentionBlock(nn.Module):
 
         self.proj_out = zero_module(
             # conv_nd(1, channels, channels, 1)
-            get_quantized_cls("conv1d", quant_config["attblockout"])(channels, channels, 1, config=quant_config["attblockout"])
+            get_quantized_cls("conv1d", quant_config.get("attblock_out"))(channels, channels, 1, config=quant_config.get("attblock_out"))
             )
 
     def forward(self, x):
@@ -493,6 +499,7 @@ class UNetModel(nn.Module):
         use_fp16=False,
         num_heads=-1,
         num_head_channels=-1,
+        quant_config=None,
         num_heads_upsample=-1,
         use_scale_shift_norm=False,
         resblock_updown=False,
@@ -542,10 +549,11 @@ class UNetModel(nn.Module):
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(
             # linear(model_channels, time_embed_dim),
-            get_quantized_cls("linear", quant_config["unettimeemb"])(model_channels, time_embed_dim, config=quant_config["unettimeemb"]),
-            nn.SiLU(),
+            get_quantized_cls("linear", quant_config.get("unet_temb"))(model_channels, time_embed_dim, config=quant_config.get("unet_temb")),
+            # nn.SiLU(),
+            get_quantized_cls("silu", quant_config.get("silu_unet_temb"))(config=quant_config.get("silu_unet_temb")), 
             # linear(time_embed_dim, time_embed_dim),
-            get_quantized_cls("linear", quant_config["unettimeemb"])(time_embed_dim, time_embed_dim, config=quant_config["unettimeemb"]),
+            get_quantized_cls("linear", quant_config.get("unet_temb"))(time_embed_dim, time_embed_dim, config=quant_config.get("unet_temb")),
         )
 
         if self.num_classes is not None:
@@ -555,7 +563,7 @@ class UNetModel(nn.Module):
             [
                 TimestepEmbedSequential(
                     #conv_nd(dims, in_channels, model_channels, 3, padding=1)
-                    get_quantized_cls("conv2d", quant_config["unetin"])(in_channels, model_channels, 3, padding=1, config=quant_config["unetin"])
+                    get_quantized_cls("conv2d", quant_config.get("unet_in"))(in_channels, model_channels, 3, padding=1, config=quant_config.get("unet_in"))
                 )
             ]
         )
@@ -720,17 +728,18 @@ class UNetModel(nn.Module):
 
         self.out = nn.Sequential(
             normalization(ch),
-            nn.SiLU(),
+            # nn.SiLU(),
+            get_quantized_cls("silu", quant_config.get("silu_unet_out"))(config=quant_config.get("silu_unet_out")),
             zero_module(
                 # conv_nd(dims, model_channels, out_channels, 3, padding=1)
-                get_quantized_cls("conv2d", quant_config["unetout"])(model_channels, out_channels, 3, padding=1, config=quant_config["unetout"])
+                get_quantized_cls("conv2d", quant_config.get("unet_out"))(model_channels, out_channels, 3, padding=1, config=quant_config.get("unet_out"))
             ),
         )
         if self.predict_codebook_ids:
             self.id_predictor = nn.Sequential(
             normalization(ch),
             # conv_nd(dims, model_channels, n_embed, 1),
-            get_quantized_cls("conv2d", quant_config["unetcodebook"])(model_channels, n_embed, 1, config=quant_config["unetcodebook"])
+            get_quantized_cls("conv2d", quant_config.get("unet_codebook"))(model_channels, n_embed, 1, config=quant_config.get("unet_codebook"))
             #nn.LogSoftmax(dim=1)  # change to cross_entropy and produce non-normalized logits
         )
 
@@ -837,10 +846,11 @@ class EncoderUNetModel(nn.Module):
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(
             # linear(model_channels, time_embed_dim),
-            get_quantized_cls("linear", quant_config["unettimeemb"])(model_channels, time_embed_dim, config=quant_config["unettimeemb"]),
-            nn.SiLU(),
+            get_quantized_cls("linear", quant_config.get("unet_temb"))(model_channels, time_embed_dim, config=quant_config.get("unet_temb")),
+            # nn.SiLU(),
+            get_quantized_cls("silu", quant_config.get("silu_unet_temb"))(config=quant_config.get("silu_unet_temb")),
             # linear(time_embed_dim, time_embed_dim),
-            get_quantized_cls("linear", quant_config["unettimeemb"])(time_embed_dim, time_embed_dim, config=quant_config["unettimeemb"]),
+            get_quantized_cls("linear", quant_config.get("unet_temb"))(time_embed_dim, time_embed_dim, config=quant_config.get("unet_temb")),
 
         )
 
@@ -848,7 +858,7 @@ class EncoderUNetModel(nn.Module):
             [
                 TimestepEmbedSequential(
                     # conv_nd(dims, in_channels, model_channels, 3, padding=1)
-                    get_quantized_cls("conv2d", quant_config["unetin"])(in_channels, model_channels, 3, padding=1, config=quant_config["unetin"])
+                    get_quantized_cls("conv2d", quant_config.get("unet_in"))(in_channels, model_channels, 3, padding=1, config=quant_config.get("unet_in"))
                 )
             ]
         )
@@ -942,7 +952,7 @@ class EncoderUNetModel(nn.Module):
                 nn.AdaptiveAvgPool2d((1, 1)),
                 zero_module(
                     # conv_nd(dims, ch, out_channels, 1)
-                    get_quantized_cls("conv2d", quant_config["unetout"])(model_channels, out_channels, 3, padding=1, config=quant_config["unetout"])
+                    get_quantized_cls("conv2d", quant_config.get("unet_out"))(model_channels, out_channels, 3, padding=1, config=quant_config.get("unet_out"))
                 ),
                 nn.Flatten(),
             )

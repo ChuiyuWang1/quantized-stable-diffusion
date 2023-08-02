@@ -41,6 +41,9 @@ from .relu import (
     ReLUBinary,
     SiLUInteger,
 )
+from .norm import (
+    GroupNormInteger,
+)
 
 quantized_module_map = {
     "conv1d_block_minifloat": Conv1dBlockMinifloat,
@@ -79,4 +82,5 @@ quantized_module_map = {
     "relu_block_fp": ReLUBlockFP,
     "relu_binary": ReLUBinary,
     "silu_integer": SiLUInteger,
+    "groupnorm_integer": GroupNormInteger,
 }
