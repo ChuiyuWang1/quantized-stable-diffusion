@@ -1,7 +1,8 @@
 from copy import deepcopy
+from typing import Dict, Tuple
 
 
-def cp_multi_values(src: dict, dst: dict, src_keys: tuple, dst_keys: tuple = None):
+def cp_multi_values(src: Dict, dst: Dict, src_keys: Tuple, dst_keys: Tuple = None):
     """Copy multiple values from src dict to dst dict."""
     if dst_keys is None:
         for key in src_keys:
@@ -11,7 +12,7 @@ def cp_multi_values(src: dict, dst: dict, src_keys: tuple, dst_keys: tuple = Non
             dst[dst_key] = deepcopy(src[src_key])
 
 
-def has_multi_keys(src: dict, keys: tuple):
+def has_multi_keys(src: Dict, keys: Tuple):
     """Check if src dict has multiple keys."""
     for key in keys:
         if key not in src:

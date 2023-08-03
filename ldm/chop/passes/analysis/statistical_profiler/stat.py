@@ -1,6 +1,6 @@
 import math
 import logging
-from typing import Literal
+from typing import List, Dict, Literal
 
 import numpy as np
 import torch
@@ -36,7 +36,7 @@ class _StatBase:
         raise NotImplementedError
 
     @torch.no_grad()
-    def compute(self) -> dict[str, Tensor]:
+    def compute(self) -> Dict[str, Tensor]:
         """
         Compute/finalize the stat and return a dict of results.
 
@@ -44,7 +44,7 @@ class _StatBase:
         """
         raise NotImplementedError
 
-    def export(self) -> dict[str, dict[str, list]]:
+    def export(self) -> Dict[str, Dict[str, List]]:
         """
         Export the stat to a dict of dict of lists.
 
@@ -101,7 +101,7 @@ class Record(_StatBase):
         self.total_size_in_bytes = self.data.element_size() * self.data.nelement()
 
     @torch.no_grad()
-    def compute(self) -> dict:
+    def compute(self) -> Dict:
         return {
             "data": self.data,
             "count": self.count,
@@ -126,7 +126,7 @@ class VarianceOnline(_StatBase):
 
     name = "variance_online"
 
-    def __init__(self, device=None, dims: Literal["all"] | None | list = "all") -> None:
+    def __init__(self, device=None, dims: Literal["all"] | None | List = "all") -> None:
         super().__init__()
         self.device = device
         if isinstance(dims, (list, tuple)):
@@ -157,7 +157,7 @@ class VarianceOnline(_StatBase):
         return count, mean, m
 
     @staticmethod
-    def _reshape_a_sample(new_s: Tensor, dims_to_reduce: list[int]):
+    def _reshape_a_sample(new_s: Tensor, dims_to_reduce: List[int]):
         dims_to_keep = [i for i in range(new_s.ndim) if i not in dims_to_reduce]
         transpose_dims = dims_to_keep + dims_to_reduce
         new_s = new_s.permute(*transpose_dims)
@@ -174,8 +174,10 @@ class VarianceOnline(_StatBase):
         if self.device is not None:
             new_s = new_s.to(self.device)
 
-        match self.dims_to_reduce:
-            case "all":
+        # match self.dims_to_reduce:
+        #     case "all":
+        if self.dims_to_reduce == "all": 
+            """
                 new_s = torch.flatten(new_s)
                 n_b = new_s.nelement()
                 mean_b = new_s.mean()
@@ -186,14 +188,36 @@ class VarianceOnline(_StatBase):
                     self.count + n_b
                 )
                 self.count += n_b
-            case None:
+            """
+            new_s = torch.flatten(new_s)
+            n_b = new_s.nelement()
+            mean_b = new_s.mean()
+
+            delta = mean_b - self.mean
+            self.mean += delta * n_b / (self.count + n_b)
+            self.m += new_s.var() * n_b + delta**2 * self.count * n_b / (
+                self.count + n_b
+            )
+            self.count += n_b
+        #     case None:
+        elif self.dims_to_reduce == None:
+            """
                 self.count, self.mean, self.m = self._update(
                     new_s=new_s,
                     count=self.count,
                     mean=self.mean,
                     m=self.m,
                 )
-            case _:
+            """
+            self.count, self.mean, self.m = self._update(
+                new_s=new_s,
+                count=self.count,
+                mean=self.mean,
+                m=self.m,
+            )
+        #     case _:
+        else: 
+            """
                 # self.dims_to_reduce is a list
                 new_s = self._reshape_a_sample(
                     new_s, dims_to_reduce=self.dims_to_reduce
@@ -205,9 +229,21 @@ class VarianceOnline(_StatBase):
                         mean=self.mean,
                         m=self.m,
                     )
+            """
+            # self.dims_to_reduce is a list
+            new_s = self._reshape_a_sample(
+                new_s, dims_to_reduce=self.dims_to_reduce
+            )
+            for i in range(new_s.size(-1)):
+                self.count, self.mean, self.m = self._update(
+                    new_s=new_s[..., i],
+                    count=self.count,
+                    mean=self.mean,
+                    m=self.m,
+                )
 
     @torch.no_grad()
-    def compute(self) -> dict:
+    def compute(self) -> Dict:
         if self.count < 2:
             logger.warning(
                 f"VarianceOnline: count is {self.count}, which is less than 2. "
@@ -238,7 +274,7 @@ class VariancePrecise(Record):
 
     name = "variance_precise"
 
-    def __init__(self, device=None, dims: Literal["all"] | None | list = "all") -> None:
+    def __init__(self, device=None, dims: Literal["all"] | None | List = "all") -> None:
         super().__init__(device=device, add_new_dim_before_concat=True)
         self.dims_to_reduce = dims
 
@@ -247,37 +283,40 @@ class VariancePrecise(Record):
         super().update_a_sample(new_s=new_s)
 
     @torch.no_grad()
-    def compute(self) -> dict[str, ndarray]:
-        match self.dims_to_reduce:
-            case "all":
-                var = torch.var(self.data)
-                mean = torch.mean(self.data)
-                count = self.data.nelement()
-            case None:
-                count = self.data.size(0)
-                if self.data.size(0) < 2:
-                    logger.warning(
-                        f"VariancePrecise: count is {self.data.size(0)}, which is less than 2. "
-                        "Returning NA for mean and variance."
-                    )
-                    mean = "NA"
-                    var = "NA"
-                else:
-                    var = torch.var(self.data, dim=0)
-                    mean = torch.mean(self.data, dim=0)
-            case _:
-                dims_to_reduce = [i + 1 for i in self.dims_to_reduce]
-                count = self.data[dims_to_reduce].nelements()
-                if self.data[dims_to_reduce].nelements() < 2:
-                    logger.warning(
-                        f"VariancePrecise: count is {self.data[dims_to_reduce].nelements()}, which is less than 2. "
-                        "Returning NA for mean and variance."
-                    )
-                    var = "NA"
-                    mean = "NA"
-                else:
-                    var = torch.var(self.data, dim=[0] + dims_to_reduce)
-                    mean = torch.mean(self.data, dim=[0] + dims_to_reduce)
+    def compute(self) -> Dict[str, ndarray]:
+        # match self.dims_to_reduce:
+        #     case "all":
+        if self.dims_to_reduce == "all": 
+            var = torch.var(self.data)
+            mean = torch.mean(self.data)
+            count = self.data.nelement()
+        #     case None:
+        elif self.dims_to_reduce == None: 
+            count = self.data.size(0)
+            if self.data.size(0) < 2:
+                logger.warning(
+                    f"VariancePrecise: count is {self.data.size(0)}, which is less than 2. "
+                    "Returning NA for mean and variance."
+                )
+                mean = "NA"
+                var = "NA"
+            else:
+                var = torch.var(self.data, dim=0)
+                mean = torch.mean(self.data, dim=0)
+        #     case _:
+        else:
+            dims_to_reduce = [i + 1 for i in self.dims_to_reduce]
+            count = self.data[dims_to_reduce].nelements()
+            if self.data[dims_to_reduce].nelements() < 2:
+                logger.warning(
+                    f"VariancePrecise: count is {self.data[dims_to_reduce].nelements()}, which is less than 2. "
+                    "Returning NA for mean and variance."
+                )
+                var = "NA"
+                mean = "NA"
+            else:
+                var = torch.var(self.data, dim=[0] + dims_to_reduce)
+                mean = torch.mean(self.data, dim=[0] + dims_to_reduce)
         return {"mean": mean, "variance": var, "count": count}
 
 
@@ -302,7 +341,7 @@ class RangeNSigma(VarianceOnline, VariancePrecise):
     def __init__(
         self,
         device=None,
-        dims: Literal["all"] | None | list = "all",
+        dims: Literal["all"] | None | List = "all",
         abs: bool = False,
         var_mode: Literal["precise"] | Literal["online"] = "online",
         num_sigma: int = 3,
@@ -328,7 +367,7 @@ class RangeNSigma(VarianceOnline, VariancePrecise):
             VariancePrecise.update_a_sample(self, new_s=new_s)
 
     @torch.no_grad()
-    def compute(self) -> dict:
+    def compute(self) -> Dict:
         if self.var_mode == "online":
             var_results = VarianceOnline.compute(self)
         else:
@@ -364,7 +403,7 @@ class RangeMinMax(_StatBase):
     name = "range_min_max"
 
     def __init__(
-        self, device=None, dims: Literal["all"] | list | None = "all", abs: bool = False
+        self, device=None, dims: Literal["all"] | List | None = "all", abs: bool = False
     ) -> None:
         super().__init__()
         self.device = device
@@ -386,41 +425,47 @@ class RangeMinMax(_StatBase):
             new_s = torch.abs(new_s)
 
         if self.min is None:
-            match self.dims:
-                case None:
-                    self.min = new_s
-                    self.max = new_s
-                    self.count += 1
-                case "all":
-                    self.min = torch.min(new_s)
-                    self.max = torch.max(new_s)
-                    self.count += new_s.nelement()
-                case _:
-                    n_elem = 1
-                    for dim in self.dims:
-                        n_elem *= new_s.size(dim)
-                        self.min = torch.min(new_s, dim=dim)
-                        self.max = torch.max(new_s, dim=dim)
-                    self.count += n_elem
+            # match self.dims:
+            #     case None:
+            if self.dims == None:
+                self.min = new_s
+                self.max = new_s
+                self.count += 1
+            #     case "all":
+            elif self.dims == "all": 
+                self.min = torch.min(new_s)
+                self.max = torch.max(new_s)
+                self.count += new_s.nelement()
+            #     case _:
+            else:
+                n_elem = 1
+                for dim in self.dims:
+                    n_elem *= new_s.size(dim)
+                    self.min = torch.min(new_s, dim=dim)
+                    self.max = torch.max(new_s, dim=dim)
+                self.count += n_elem
         else:
-            match self.dims:
-                case None:
-                    self.min = torch.min(self.min, new_s)
-                    self.max = torch.max(self.max, new_s)
-                    self.count += 1
-                case "all":
-                    self.min = torch.min(self.min, torch.min(new_s))
-                    self.max = torch.max(self.max, torch.max(new_s))
-                    self.count += new_s.nelement()
-                case _:
-                    n_elem = 1
-                    for dim in self.dims:
-                        n_elem *= new_s.size(dim)
-                        self.min = torch.min(self.min, torch.min(new_s, dim=dim))
-                        self.max = torch.max(self.max, torch.max(new_s, dim=dim))
-                    self.count += n_elem
+            # match self.dims:
+            #     case None:
+            if self.dims == None:
+                self.min = torch.min(self.min, new_s)
+                self.max = torch.max(self.max, new_s)
+                self.count += 1
+            #     case "all":
+            elif self.dims == "all":
+                self.min = torch.min(self.min, torch.min(new_s))
+                self.max = torch.max(self.max, torch.max(new_s))
+                self.count += new_s.nelement()
+            #     case _:
+            else:
+                n_elem = 1
+                for dim in self.dims:
+                    n_elem *= new_s.size(dim)
+                    self.min = torch.min(self.min, torch.min(new_s, dim=dim))
+                    self.max = torch.max(self.max, torch.max(new_s, dim=dim))
+                self.count += n_elem
 
-    def compute(self) -> dict:
+    def compute(self) -> Dict:
         if self.count < 2:
             logger.warning(
                 f"RangeMinMax: count is {self.count}, which is less than 2. "
@@ -455,7 +500,7 @@ class RangeQuantile(Record):
         self,
         device=None,
         abs: bool = False,
-        dims: Literal["all"] | None | list = "all",
+        dims: Literal["all"] | None | List = "all",
         quantile: float = 0.975,
     ) -> None:
         super().__init__(device=device, add_new_dim_before_concat=True)
@@ -464,7 +509,7 @@ class RangeQuantile(Record):
         self.dims = dims
 
     @staticmethod
-    def _permute_and_flatten(data: Tensor, dims_to_reduce: list[int]):
+    def _permute_and_flatten(data: Tensor, dims_to_reduce: List[int]):
         dims_to_keep = [i for i in range(data.ndim) if i not in dims_to_reduce]
         transpose_dims = dims_to_keep + dims_to_reduce
         data = data.permute(*transpose_dims)
@@ -472,40 +517,43 @@ class RangeQuantile(Record):
         return data
 
     @torch.no_grad()
-    def compute(self) -> dict:
+    def compute(self) -> Dict:
         if self.abs:
             self.data = torch.abs(self.data)
 
-        match self.dims:
-            case None:
-                count = self.data.size(0)
-                if count < 2:
-                    logger.warning(
-                        f"RangeQuantile: count is {self.data.size(0)}, which is less than 2. "
-                        "Returning NA for min and max."
-                    )
-                    minimum = "NA"
-                    maximum = "NA"
-                    d_range = "NA"
-                else:
-                    minimum = self.data.quantile(1 - self.quantile, dim=0)
-                    maximum = self.data.quantile(self.quantile, dim=0)
-                    d_range = maximum - minimum
-            case "all":
-                minimum = self.data.quantile(1 - self.quantile)
-                maximum = self.data.quantile(self.quantile)
-                d_range = maximum - minimum
-                count = self.data.nelement()
-            case _:
-                dims_to_reduce = [i + 1 for i in self.dims]
-
-                self.data = self._permute_and_flatten(
-                    data=self.data, dims_to_reduce=[0] + dims_to_reduce
+        # match self.dims:
+        #     case None:
+        if self.dims == None: 
+            count = self.data.size(0)
+            if count < 2:
+                logger.warning(
+                    f"RangeQuantile: count is {self.data.size(0)}, which is less than 2. "
+                    "Returning NA for min and max."
                 )
-                minimum = self.data.quantile(1 - self.quantile, dim=-1)
-                maximum = self.data.quantile(self.quantile, dim=-1)
-                count = self.data.size(-1)
+                minimum = "NA"
+                maximum = "NA"
+                d_range = "NA"
+            else:
+                minimum = self.data.quantile(1 - self.quantile, dim=0)
+                maximum = self.data.quantile(self.quantile, dim=0)
                 d_range = maximum - minimum
+        #     case "all":
+        elif self.dims == "all": 
+            minimum = self.data.quantile(1 - self.quantile)
+            maximum = self.data.quantile(self.quantile)
+            d_range = maximum - minimum
+            count = self.data.nelement()
+        #     case _:
+        else:
+            dims_to_reduce = [i + 1 for i in self.dims]
+
+            self.data = self._permute_and_flatten(
+                data=self.data, dims_to_reduce=[0] + dims_to_reduce
+            )
+            minimum = self.data.quantile(1 - self.quantile, dim=-1)
+            maximum = self.data.quantile(self.quantile, dim=-1)
+            count = self.data.size(-1)
+            d_range = maximum - minimum
 
         return {"min": minimum, "max": maximum, "range": d_range, "count": count}
 

@@ -1,5 +1,6 @@
 from accelerate import init_empty_weights, init_on_device
 from transformers import AutoTokenizer
+from typing import List, Dict
 
 from .configuration_llama import LlamaConfig
 from .modeling_llama import (
@@ -24,7 +25,7 @@ Vicuna: https://huggingface.co/lmsys
 def get_llama_plain(
     name: str,
     task: str,
-    info: dict,
+    info: Dict,
     # device: str = "meta",
     return_tokenizer: bool = False,
 ):
@@ -32,13 +33,19 @@ def get_llama_plain(
     if task not in ["language_modeling", "lm"]:
         raise ValueError(f"Task {task} is not supported for plain Llama")
 
-    match task:
-        case "language_modeling" | "lm":
-            # with init_on_device(device):
-            config = LlamaConfig.from_pretrained(name)
-            model = LlamaForCausalLM.from_pretrained(name, config=config)
-        case _:
-            raise ValueError(f"Task {task} is not supported for Llama")
+    # match task:
+    #     case "language_modeling" | "lm":
+    if task == "language_modeling" or task == "lm":
+        #     # with init_on_device(device):
+        #     config = LlamaConfig.from_pretrained(name)
+        #     model = LlamaForCausalLM.from_pretrained(name, config=config)
+        # with init_on_device(device):
+        config = LlamaConfig.from_pretrained(name)
+        model = LlamaForCausalLM.from_pretrained(name, config=config)
+    #     case _:
+    else:
+        #     raise ValueError(f"Task {task} is not supported for Llama")
+        raise ValueError(f"Task {task} is not supported for Llama")
     if not return_tokenizer:
         return model
     else:

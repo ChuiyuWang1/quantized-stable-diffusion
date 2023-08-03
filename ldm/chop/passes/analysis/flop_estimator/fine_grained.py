@@ -19,10 +19,10 @@ logger = logging.getLogger(__name__)
 def estimate_sw_fine_grained(
     model_name: int,
     task: str,
-    info: dict,
+    info: Dict,
     model: torch.nn.Module,
     data_module,
-    config: dict = None,
+    config: Dict = None,
     save_dir: str = None,
 ):
     assert isinstance(

@@ -1,4 +1,5 @@
 import torch
+from typing import Dict
 
 from ..utils import _import_config_from_py_file
 from .deepspeed import estimate_sw_deepspeed
@@ -14,7 +15,7 @@ estimator_style_map = {
 def run_flop_estimator(
     model_name: int,
     task: str,
-    info: dict,
+    info: Dict,
     model: torch.nn.Module,
     data_module,
     config_path: str = None,

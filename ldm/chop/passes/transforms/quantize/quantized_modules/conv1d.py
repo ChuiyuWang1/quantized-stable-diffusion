@@ -1,7 +1,7 @@
 import math
 from functools import partial
 from math import ceil, log2
-from typing import Union
+from typing import Union, Dict
 
 import torch
 from ldm.chop.passes.transforms.quantize.quantizers import (
@@ -164,7 +164,7 @@ class Conv1dMinifloatDenorm(_Conv1dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,
@@ -237,7 +237,7 @@ class Conv1dLog(_Conv1dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,
@@ -304,7 +304,7 @@ class Conv1dMinifloatIEEE(_Conv1dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,
@@ -377,7 +377,7 @@ class Conv1dBlockFP(_Conv1dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,
@@ -459,7 +459,7 @@ class Conv1dBlockMinifloat(_Conv1dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,
@@ -541,7 +541,7 @@ class Conv1dBlockLog(_Conv1dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,

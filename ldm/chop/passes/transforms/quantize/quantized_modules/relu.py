@@ -3,6 +3,7 @@ from functools import partial
 import torch
 from torch import Tensor
 from torch.nn import functional as F
+from typing import Dict
 
 from ..quantizers import (
     block_fp_quantizer,
@@ -38,7 +39,7 @@ class _ReLUBase(torch.nn.ReLU):
 class ReLUInteger(_ReLUBase):
     bypass = None
 
-    def __init__(self, inplace: bool = False, config: dict = None):
+    def __init__(self, inplace: bool = False, config: Dict = None):
         super().__init__(inplace)
         assert config is not None, "config is None!"
         self.config = config
@@ -62,7 +63,7 @@ class ReLUInteger(_ReLUBase):
 
 
 class ReLUMinifloatDenorm(_ReLUBase):
-    def __init__(self, inplace: bool = False, config: dict = None):
+    def __init__(self, inplace: bool = False, config: Dict = None):
         super().__init__(inplace)
         assert config is not None, "config is None!"
         self.config = config
@@ -84,7 +85,7 @@ class ReLUMinifloatDenorm(_ReLUBase):
 
 
 class ReLUMinifloatIEEE(_ReLUBase):
-    def __init__(self, inplace: bool = False, config: dict = None):
+    def __init__(self, inplace: bool = False, config: Dict = None):
         super().__init__(inplace)
         assert config is not None, "config is None!"
         self.config = config
@@ -106,7 +107,7 @@ class ReLUMinifloatIEEE(_ReLUBase):
 
 
 class ReLULog(_ReLUBase):
-    def __init__(self, inplace: bool = False, config: dict = None):
+    def __init__(self, inplace: bool = False, config: Dict = None):
         super().__init__(inplace)
         assert config is not None, "config is None!"
         self.config = config
@@ -126,7 +127,7 @@ class ReLULog(_ReLUBase):
 
 
 class ReLULog(_ReLUBase):
-    def __init__(self, inplace: bool = False, config: dict = None):
+    def __init__(self, inplace: bool = False, config: Dict = None):
         super().__init__(inplace)
         assert config is not None, "config is None!"
         self.config = config
@@ -146,7 +147,7 @@ class ReLULog(_ReLUBase):
 
 
 class ReLUBlockFP(_ReLUBase):
-    def __init__(self, inplace: bool = False, config: dict = None):
+    def __init__(self, inplace: bool = False, config: Dict = None):
         super().__init__(inplace)
         assert config is not None, "config is None!"
         self.config = config
@@ -182,7 +183,7 @@ class ReLUBlockFP(_ReLUBase):
 
 
 class ReLUBlockMinifloat(_ReLUBase):
-    def __init__(self, inplace: bool = False, config: dict = None):
+    def __init__(self, inplace: bool = False, config: Dict = None):
         super().__init__(inplace)
         assert config is not None, "config is None!"
         self.config = config
@@ -218,7 +219,7 @@ class ReLUBlockMinifloat(_ReLUBase):
 
 
 class ReLUBlockLog(_ReLUBase):
-    def __init__(self, inplace: bool = False, config: dict = None):
+    def __init__(self, inplace: bool = False, config: Dict = None):
         super().__init__(inplace)
 
         assert config is not None, "config is None!"
@@ -255,7 +256,7 @@ class ReLUBlockLog(_ReLUBase):
 class ReLUBinary(_ReLUBase):
     bypass = None
 
-    def __init__(self, inplace: bool = False, config: dict = None):
+    def __init__(self, inplace: bool = False, config: Dict = None):
         super().__init__(inplace)
         assert config is not None, "config is None!"
         self.config = config
@@ -294,7 +295,7 @@ class _SiLUBase(torch.nn.SiLU):
 class SiLUInteger(_SiLUBase):
     bypass = None
 
-    def __init__(self, inplace: bool = False, config: dict = None):
+    def __init__(self, inplace: bool = False, config: Dict = None):
         super().__init__(inplace)
         assert config is not None, "config is None!"
         self.config = config

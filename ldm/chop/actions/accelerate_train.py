@@ -78,26 +78,37 @@ def evaluate(accelerator, model, task, eval_dataloader, num_eval_samples):
     model.eval()
     step_results = []
     for step, batch in enumerate(eval_dataloader):
-        match task:
-            case "lm" | "language_modeling":
-                ppl_step = evaluate_lm_step(accelerator, model, batch)
-                step_results += ppl_step.tolist()
-            case _:
-                raise ValueError(f"Unsupported task: {task}")
-
-    match task:
-        case "lm" | "language_modeling":
-            ppl = np.mean(step_results)
-            eval_results = {"eval_ppl": ppl}
-        case _:
+        # match task:
+        #     case "lm" | "language_modeling":
+        if task == "lm" or task == "language_modeling":
+        #         ppl_step = evaluate_lm_step(accelerator, model, batch)
+        #         step_results += ppl_step.tolist()
+            ppl_step = evaluate_lm_step(accelerator, model, batch)
+            step_results += ppl_step.tolist()
+        #     case _:
+        else: 
+            #     raise ValueError(f"Unsupported task: {task}")
             raise ValueError(f"Unsupported task: {task}")
+
+    # match task:
+    #     case "lm" | "language_modeling":
+    if task == "lm" or task == "language_modeling":
+        #     ppl = np.mean(step_results)
+        #     eval_results = {"eval_ppl": ppl}
+        ppl = np.mean(step_results)
+        eval_results = {"eval_ppl": ppl}
+    #     case _:
+    else: 
+        #     raise ValueError(f"Unsupported task: {task}")
+        raise ValueError(f"Unsupported task: {task}")
 
     return eval_results
 
 
 def train_step(accelerator: Accelerator, model: torch.nn.Module, batch, task):
-    match task:
-        case "lm" | "language_modeling":
+    # match task:
+    #     case "lm" | "language_modeling":
+    if task == "lm" or task == "language_modeling":
             input_ids = batch["input_ids"]
             labels = batch["input_ids"].detach().clone()
             attention_mask = batch["attention_mask"]
@@ -105,7 +116,8 @@ def train_step(accelerator: Accelerator, model: torch.nn.Module, batch, task):
                 input_ids=input_ids, attention_mask=attention_mask, labels=labels
             )
             loss = outputs["loss"]
-        case _:
+    #     case _:
+    else:
             raise ValueError(f"Unsupported task: {task}")
     return loss
 
@@ -130,17 +142,27 @@ def get_optimizer(accelerator, model, optimizer: str, learning_rate, weight_deca
             "weight_decay": 0.0,
         },
     ]
-    match optimizer:
-        case "adamw":
-            optimizer = torch.optim.AdamW(
-                optimizer_grouped_parameters, lr=learning_rate
-            )
-        case "adam":
-            optimizer = torch.optim.Adam(optimizer_grouped_parameters, lr=learning_rate)
-        case "sgd":
-            optimizer = torch.optim.SGD(optimizer_grouped_parameters, lr=learning_rate)
-        case _:
-            raise ValueError(f"Unsupported optimizer: {optimizer}")
+    # match optimizer:
+    #     case "adamw":
+    if optimizer == "adamw":
+        #     optimizer = torch.optim.AdamW(
+        #         optimizer_grouped_parameters, lr=learning_rate
+        #     )
+        optimizer = torch.optim.AdamW(
+            optimizer_grouped_parameters, lr=learning_rate
+        )
+    #     case "adam":
+    elif optimizer == "adam":
+        #     optimizer = torch.optim.Adam(optimizer_grouped_parameters, lr=learning_rate)
+        optimizer = torch.optim.Adam(optimizer_grouped_parameters, lr=learning_rate)
+    #     case "sgd":
+    elif optimizer == "sgd":
+        #     optimizer = torch.optim.SGD(optimizer_grouped_parameters, lr=learning_rate)
+        optimizer = torch.optim.SGD(optimizer_grouped_parameters, lr=learning_rate)
+    #     case _:
+    else:
+        #     raise ValueError(f"Unsupported optimizer: {optimizer}")
+        raise ValueError(f"Unsupported optimizer: {optimizer}")
 
     optimizer = accelerator.prepare(optimizer)
     return optimizer

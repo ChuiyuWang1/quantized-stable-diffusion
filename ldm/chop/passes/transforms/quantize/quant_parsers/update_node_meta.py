@@ -1,7 +1,8 @@
 from functools import partial
+from typing import Tuple, Dict
 
 
-def entry_to_list(config: dict, entry: str, suffixes: tuple[str]):
+def entry_to_list(config: Dict, entry: str, suffixes: Tuple[str]):
     """e.g. [data_in_frac_width, data_in_width]"""
     return list(config[f"{entry}_{suffix}"] for suffix in suffixes)
 
@@ -56,7 +57,7 @@ MASE_OP_TO_INPUT_ENTRIES_AND_ARGS = {
 }
 
 
-def update_quant_meta_param(node, config: dict, mase_op: str) -> None:
+def update_quant_meta_param(node, config: Dict, mase_op: str) -> None:
     quant_arith = config["name"]
     assert quant_arith in quant_arith_to_list_fn, f"Unknown quant_arith: {quant_arith}"
 

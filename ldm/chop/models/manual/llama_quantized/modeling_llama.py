@@ -22,7 +22,7 @@
 """ PyTorch LLaMA model."""
 
 import math
-from typing import List, Optional, Tuple, Union
+from typing import List, Dict, Optional, Tuple, Union
 
 import torch
 import torch.utils.checkpoint
@@ -198,7 +198,7 @@ class LlamaQuantizedMLP(nn.Module):
         hidden_size: int,
         intermediate_size: int,
         hidden_act: str,
-        quant_config: dict,
+        quant_config: Dict,
     ):
         super().__init__()
         # fmt: off

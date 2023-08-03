@@ -3,6 +3,7 @@ import logging
 import os
 
 import torch
+from typing import Dict
 from deepspeed.profiling.flops_profiler import get_model_profile
 
 from ..utils import get_input_args
@@ -19,10 +20,10 @@ logger = logging.getLogger(__name__)
 def estimate_sw_deepspeed(
     model_name: int,
     task: str,
-    info: dict,
+    info: Dict,
     model: torch.nn.Module,
     data_module,
-    config: dict,
+    config: Dict,
     save_dir: str,
 ):
     """

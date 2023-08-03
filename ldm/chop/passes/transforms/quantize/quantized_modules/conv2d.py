@@ -1,6 +1,6 @@
 from functools import partial
 from math import ceil, log2
-from typing import Union
+from typing import Union, Dict
 
 import torch
 from ldm.chop.passes.transforms.quantize.quantizers import (
@@ -63,7 +63,7 @@ class _Conv2dBase(torch.nn.Conv2d):
     def get_quantized_weight(self) -> Tensor:
         return self.w_quantizer(self.weight)
 
-    def get_quantized_weights_with_inputs(self, x: Tensor) -> dict:
+    def get_quantized_weights_with_inputs(self, x: Tensor) -> Dict:
         x = self.x_quantizer(x)
         w = self.w_quantizer(self.weight)
         bias = self.b_quantizer(self.bias) if self.bias is not None else None
@@ -75,7 +75,7 @@ class _Conv2dBase(torch.nn.Conv2d):
             "y": y,
         }
 
-    def get_output_bitwidth(self) -> dict:
+    def get_output_bitwidth(self) -> Dict:
         raise NotImplementedError()
 
 
@@ -165,7 +165,7 @@ class Conv2dMinifloatDenorm(_Conv2dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,
@@ -238,7 +238,7 @@ class Conv2dMinifloatIEEE(_Conv2dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,
@@ -311,7 +311,7 @@ class Conv2dLog(_Conv2dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,
@@ -378,7 +378,7 @@ class Conv2dLog(_Conv2dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,
@@ -445,7 +445,7 @@ class Conv2dBlockFP(_Conv2dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,
@@ -543,7 +543,7 @@ class Conv2dBlockMinifloat(_Conv2dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,
@@ -640,7 +640,7 @@ class Conv2dBlockLog(_Conv2dBase):
         padding_mode: str = "zeros",
         device=None,
         dtype=None,
-        config: dict = None,
+        config: Dict = None,
     ) -> None:
         super().__init__(
             in_channels,

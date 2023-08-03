@@ -1,5 +1,5 @@
 import inspect
-from typing import Literal
+from typing import Literal, Dict
 
 from ldm.chop.models import (
     nlp_models,
@@ -59,7 +59,7 @@ def get_dummy_input(
     datamodule,
     task: str,
     is_nlp_model: bool = False,
-) -> dict:
+) -> Dict:
     """Create a single dummy input for a model. The dummy input is a single sample from the training set.
 
     Args:

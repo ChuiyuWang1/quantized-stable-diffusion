@@ -4,6 +4,7 @@ import os
 import toml
 import torch
 import torch.fx as fx
+from typing import Dict
 from ldm.chop.passes.analysis.init_metadata import init_metadata_analysis_pass
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,7 @@ def graph_iterator_remove_metadata(graph):
     return graph
 
 
-def collect_n_meta_param(graph) -> dict:
+def collect_n_meta_param(graph) -> Dict:
     """
     Collect all metadata from the graph.
     """
@@ -45,7 +46,7 @@ def collect_n_meta_param(graph) -> dict:
     return node_n_meta_param
 
 
-def save_n_meta_param(node_meta: dict, save_path: str) -> None:
+def save_n_meta_param(node_meta: Dict, save_path: str) -> None:
     """
     Save a mase graph metadata to a toml file.
     """
@@ -53,7 +54,7 @@ def save_n_meta_param(node_meta: dict, save_path: str) -> None:
         toml.dump(node_meta, f)
 
 
-def load_n_meta_param(load_path: str) -> dict:
+def load_n_meta_param(load_path: str) -> Dict:
     """
     Load a mase graph metadata from a toml file.
     """
@@ -62,7 +63,7 @@ def load_n_meta_param(load_path: str) -> dict:
     return node_n_meta_param
 
 
-def graph_iterator_add_n_meta_param(graph, node_n_meta_param: dict):
+def graph_iterator_add_n_meta_param(graph, node_n_meta_param: Dict):
     """
     Add metadata to the graph.
     """
@@ -79,7 +80,7 @@ def load_graph_module_ckpt(checkpoint: str) -> fx.GraphModule:
     return graph_module
 
 
-def graph_iterator_add_n_meta_param(graph, node_n_meta_param: dict):
+def graph_iterator_add_n_meta_param(graph, node_n_meta_param: Dict):
     """
     Add metadata to the graph.
     """

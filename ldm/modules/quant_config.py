@@ -1,3 +1,5 @@
+from typing import Dict
+
 class UNetQuantConfig():
     def __init__(self) -> None:
         self.quant_config = {}
@@ -78,7 +80,7 @@ class UNetQuantConfig():
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 4}
     
-    def get(self, item: str) -> dict:
+    def get(self, item: str) -> Dict:
         if item in self.config_keys:
             return self.quant_config[item]
         else:

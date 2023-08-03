@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Dict
 
 from .utils import cp_multi_values, has_multi_keys
 
@@ -124,23 +125,23 @@ QUANT_ARITH_ENTRIES = {
 }
 
 
-def cp_name(config: dict, p_config: dict, entries=None):
+def cp_name(config: Dict, p_config: Dict, entries=None):
     cp_multi_values(config, p_config, ("name",))
 
 
-def cp_weight_entries(config: dict, p_config: dict, entries: dict):
+def cp_weight_entries(config: Dict, p_config: Dict, entries: Dict):
     cp_multi_values(config, p_config, entries["weight_entries"])
 
 
-def cp_data_in_entries(config: dict, p_config: dict, entries: dict):
+def cp_data_in_entries(config: Dict, p_config: Dict, entries: Dict):
     cp_multi_values(config, p_config, entries["data_in_entries"])
 
 
-def cp_bias_entries(config: dict, p_config: dict, entries: dict):
+def cp_bias_entries(config: Dict, p_config: Dict, entries: Dict):
     cp_multi_values(config, p_config, entries["bias_entries"])
 
 
-def cp_weight_entries_to_bias(config: dict, p_config: dict, entries: dict):
+def cp_weight_entries_to_bias(config: Dict, p_config: Dict, entries: Dict):
     if has_multi_keys(config, entries["bias_entries"]):
         cp_multi_values(config, p_config, entries["bias_entries"])
     else:
@@ -184,7 +185,7 @@ MASE_OP_TO_ENTRIES = {
 }
 
 
-def parse_node_config(config: dict, mase_op: str) -> dict:
+def parse_node_config(config: Dict, mase_op: str) -> Dict:
     assert mase_op in MASE_OP_TO_ENTRIES, f"Unknown mase op: {mase_op}"
     if config.get("bypass", False):
         return config

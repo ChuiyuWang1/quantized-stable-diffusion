@@ -15,7 +15,7 @@
 # limitations under the License.
 """ BERT model configuration"""
 from collections import OrderedDict
-from typing import Mapping
+from typing import Mapping, Dict
 
 from transformers.configuration_utils import PretrainedConfig
 from transformers.utils import logging
@@ -156,7 +156,7 @@ class BertQuantizedConfig(PretrainedConfig):
         position_embedding_type="absolute",
         use_cache=True,
         classifier_dropout=None,
-        quant_config: dict | str = None,
+        quant_config: Dict | str = None,
         **kwargs,
     ):
         super().__init__(pad_token_id=pad_token_id, **kwargs)

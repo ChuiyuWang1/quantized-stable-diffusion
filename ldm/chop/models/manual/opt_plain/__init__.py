@@ -3,6 +3,7 @@
 from .configuration_opt import OPTConfig
 from .modeling_opt import OPTForCausalLM, OPTModel
 from transformers import AutoTokenizer
+from typing import Dict
 
 # required input args will not be provided in dummy inputs before mase_symbolic_trace
 name_to_input_args_map = {
@@ -86,7 +87,7 @@ name_to_cls_map = {
 def get_opt_plain(
     name: str,
     task: str,
-    info: dict,
+    info: Dict,
     # device: str = "meta",
     return_tokenizer: bool = False,
 ):
@@ -94,7 +95,8 @@ def get_opt_plain(
     if task not in ["language_modeling", "lm", "cls", "classification"]:
         raise ValueError(f"Task {task} is not supported for plain opt")
 
-    match task:
+    """
+    # match task:
         case "language_modeling" | "lm":
             # with init_on_device(device):
             config, model = (
@@ -108,6 +110,20 @@ def get_opt_plain(
             )
         case _:
             raise ValueError(f"Task {task} is not supported for Llama")
+    """
+    if task == "language_modeling" or task == "lm": 
+        # with init_on_device(device):
+        config, model = (
+            _opt_task_to_model_cls["config"],
+            _opt_task_to_model_cls["lm"],
+        )
+    elif task == "classification" or task == "cls":
+        config, model = (
+            _opt_task_to_model_cls["config"],
+            _opt_task_to_model_cls["cls"],
+        )
+    else:
+        raise ValueError(f"Task {task} is not supported for Llama")
     config = config.from_pretrained(name)
     model = model.from_pretrained(name, config=config)
     if not return_tokenizer:

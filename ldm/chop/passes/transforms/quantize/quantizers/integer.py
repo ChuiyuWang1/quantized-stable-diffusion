@@ -80,7 +80,7 @@ def integer_quantizer(
 
 
 def integer_fraction(
-    width: int, frac_choices: list, min_value: float, max_value: float
+    width: int, frac_choices: List, min_value: float, max_value: float
 ):
     max_half_range = max(abs(min_value), abs(max_value))
     int_width = int(log2(max(0.5, max_half_range))) + 2

@@ -165,7 +165,7 @@ class Modifier:
     def __init__(
         self,
         model: nn.Module,
-        config_path: Union[str, dict],
+        config_path: Union[str, Dict],
         dummy_inputs_for_fx: Dict = {},
         custom_module_cls_to_trace=[],
         custom_module_cls_map={},
@@ -236,7 +236,7 @@ class Modifier:
 
         self.load_config(config_path)
 
-    def load_config(self, config_path: Union[str, dict]):
+    def load_config(self, config_path: Union[str, Dict]):
         if config_path is None:
             self.config = None
             return

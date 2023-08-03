@@ -35,6 +35,7 @@ vicuna = LlamaQuantizedForCausalLM.from_pretrained(
 """
 from accelerate import init_empty_weights, init_on_device
 from transformers import AutoTokenizer
+from typing import Dict
 
 from .configuration_llama import LlamaQuantizedConfig
 from .modeling_llama import (
@@ -46,8 +47,8 @@ from .modeling_llama import (
 def get_llama_quant(
     name: str,
     task: str,
-    info: dict,
-    quant_config: dict | str,
+    info: Dict,
+    quant_config: Dict | str,
     device: str = "meta",
     return_tokenizer: bool = False,
 ):
@@ -55,15 +56,25 @@ def get_llama_quant(
     if task not in ["language_modeling", "lm"]:
         raise ValueError(f"Task {task} is not supported for Quantized Llama")
 
-    match task:
-        case "language_modeling" | "lm":
+    # match task:
+    #     case "language_modeling" | "lm":
+    if task == "language_modeling" or task == "lm": 
+        """
             with init_on_device(device):
                 config = LlamaQuantizedConfig.from_pretrained(
                     name, quant_config=quant_config
                 )
                 model = LlamaQuantizedForCausalLM.from_pretrained(name, config=config)
-        case _:
-            raise ValueError(f"Task {task} is not supported for Quantized Llama")
+        """
+        with init_on_device(device):
+            config = LlamaQuantizedConfig.from_pretrained(
+                name, quant_config=quant_config
+            )
+            model = LlamaQuantizedForCausalLM.from_pretrained(name, config=config)
+    #     case _:
+    else:
+        #     raise ValueError(f"Task {task} is not supported for Quantized Llama")
+        raise ValueError(f"Task {task} is not supported for Quantized Llama")
     if not return_tokenizer:
         return model
     else:

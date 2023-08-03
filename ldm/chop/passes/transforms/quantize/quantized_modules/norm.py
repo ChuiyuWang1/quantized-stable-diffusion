@@ -1,6 +1,6 @@
 from functools import partial
 from math import ceil, log2
-from typing import Union
+from typing import Union, Dict
 
 import torch
 from ldm.chop.passes.transforms.quantize.quantizers import (
@@ -51,7 +51,7 @@ class _GroupNormBase(torch.nn.GroupNorm):
     def get_quantized_weight(self) -> Tensor:
         return self.w_quantizer(self.weight)
 
-    def get_quantized_weights_with_inputs(self, x: Tensor) -> dict:
+    def get_quantized_weights_with_inputs(self, x: Tensor) -> Dict:
         x = self.x_quantizer(x)
         w = self.w_quantizer(self.weight)
         bias = self.b_quantizer(self.bias) if self.bias is not None else None

@@ -25,8 +25,8 @@ class MaseTracer(fx.Tracer):
 
     def __init__(
         self,
-        custom_leaf_modules: tuple[ModuleType] = (),
-        custom_leaf_functions: tuple[Callable] = (),
+        custom_leaf_modules: Tuple[ModuleType] = (),
+        custom_leaf_functions: Tuple[Callable] = (),
         param_shapes_constant: bool = False,
     ) -> None:
         """

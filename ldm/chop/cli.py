@@ -165,16 +165,21 @@ class ChopCLI:
             self.logger.setLevel(logging.DEBUG)
             self.logger.debug("Enabled debug mode.")
         else:
-            match args.log_level:
-                case "debug":
+            # match args.log_level:
+            if args.log_level == "debug":
+            #     case "debug":
                     self.logger.setLevel(logging.DEBUG)
-                case "info":
+            #     case "info":
+            elif args.log_level == "info":
                     self.logger.setLevel(logging.INFO)
-                case "warning":
+            #     case "warning":
+            elif args.log_level == "warning":
                     self.logger.setLevel(logging.WARNING)
-                case "error":
+            #     case "error":
+            elif args.log_level == "error":
                     self.logger.setLevel(logging.ERROR)
-                case "critical":
+            #     case "critical":
+            elif args.log_level == "critical":
                     self.logger.setLevel(logging.CRITICAL)
 
         # Merge arguments from the configuration file (if one exists) and print
@@ -190,14 +195,18 @@ class ChopCLI:
         self.output_dir, self.output_dir_sw, self.output_dir_hw = self._setup_folders()
 
     def run(self):
-        match self.args.action:
-            case "transform":
+        # match self.args.action:
+        #     case "transform":
+        if self.args.action == "transform":
                 self._run_transform()
-            case "train":
+        #     case "train":
+        elif self.args.action == "train":
                 self._run_train()
-            case "test":
+        #     case "test":
+        elif self.args.action == "test":
                 self._run_test()
-            case "search":
+        #     case "search":
+        elif self.args.action == "search":
                 self._run_search()
 
     # Actions --------------------------------------------------------------------------

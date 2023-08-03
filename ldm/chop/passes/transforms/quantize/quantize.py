@@ -1,5 +1,6 @@
 import os
 from copy import copy, deepcopy
+from typing import Dict
 
 from ldm.chop.passes.utils import (
     get_mase_op,
@@ -29,7 +30,7 @@ QUANTIZEABLE_OP = (
 )
 
 
-def get_config(config: dict, name: str):
+def get_config(config: Dict, name: str):
     if name in config:
         return config[name]["config"]
     else:
@@ -41,7 +42,7 @@ def get_config(config: dict, name: str):
 #     pass
 
 
-def graph_iterator_quantize_by_type(graph, config: dict):
+def graph_iterator_quantize_by_type(graph, config: Dict):
     for node in graph.fx_graph.nodes:
         if get_mase_op(node) not in QUANTIZEABLE_OP:
             continue
@@ -74,7 +75,7 @@ def graph_iterator_quantize_by_type(graph, config: dict):
     return graph
 
 
-def graph_iterator_quantize_by_name(graph, config: dict):
+def graph_iterator_quantize_by_name(graph, config: Dict):
     for node in graph.fx_graph.nodes:
         if get_mase_op(node) not in QUANTIZEABLE_OP:
             continue
@@ -109,7 +110,7 @@ def graph_iterator_quantize_by_name(graph, config: dict):
     return graph
 
 
-def graph_iterator_quantize_by_regex_name(graph, config: dict):
+def graph_iterator_quantize_by_regex_name(graph, config: Dict):
     patterns = list(config.keys())
     for node in graph.fx_graph.nodes:
         if get_mase_op(node) not in QUANTIZEABLE_OP:
@@ -190,13 +191,17 @@ def graph_iterator_quantize_by_regex_name(graph, config: dict):
 
 def quantize_transform_pass(graph, pass_args=None):
     by = pass_args.pop("by")
-    match by:
-        case "type":
+    # match by:
+    #     case "type":
+    if by == "type": 
             graph = graph_iterator_quantize_by_type(graph, pass_args)
-        case "name":
+    #     case "name":
+    elif by == "name":
             graph = graph_iterator_quantize_by_name(graph, pass_args)
-        case "regex_name":
+    #     case "regex_name":
+    elif by == "regex_name": 
             graph = graph_iterator_quantize_by_regex_name(graph, pass_args)
-        case _:
+    #     case _:
+    else: 
             raise ValueError(f'Unsupported quantize "by": {by}')
     return graph

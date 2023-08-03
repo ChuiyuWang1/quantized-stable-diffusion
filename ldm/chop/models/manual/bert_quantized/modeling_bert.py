@@ -20,7 +20,7 @@ import math
 import os
 import warnings
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import List, Dict, Optional, Tuple, Union
 
 import torch
 import torch.utils.checkpoint
@@ -273,7 +273,7 @@ class BertEmbeddings(nn.Module):
 
 
 class BertQuantizedSelfAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None, quant_config: dict = None):
+    def __init__(self, config, position_embedding_type=None, quant_config: Dict = None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(
             config, "embedding_size"
@@ -456,7 +456,7 @@ class BertQuantizedSelfAttention(nn.Module):
 
 
 class BertQuantizedSelfOutput(nn.Module):
-    def __init__(self, config, quant_config: dict):
+    def __init__(self, config, quant_config: Dict):
         super().__init__()
         # self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         self.dense = get_quantized_cls("linear", quant_config["dense"])(
@@ -476,7 +476,7 @@ class BertQuantizedSelfOutput(nn.Module):
 
 
 class BertQuantizedAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None, quant_config: dict = None):
+    def __init__(self, config, position_embedding_type=None, quant_config: Dict = None):
         super().__init__()
         self.self = BertQuantizedSelfAttention(
             config,
@@ -538,7 +538,7 @@ class BertQuantizedAttention(nn.Module):
 
 
 class BertQuantizedIntermediate(nn.Module):
-    def __init__(self, config, quant_config: dict):
+    def __init__(self, config, quant_config: Dict):
         super().__init__()
         # self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
         self.dense = get_quantized_cls("linear", quant_config["dense"])(

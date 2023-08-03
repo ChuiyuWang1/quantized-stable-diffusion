@@ -1,5 +1,6 @@
 import os
 import re
+from typing import List, Dict, Tuple
 from copy import deepcopy
 
 import toml
@@ -52,7 +53,7 @@ An example of quant_config for bert
 """
 
 
-def cp_multi_values(src: dict, dst: dict, src_keys: tuple, dst_keys: tuple = None):
+def cp_multi_values(src: Dict, dst: Dict, src_keys: Tuple, dst_keys: Tuple = None):
     """Copy multiple values from src dict to dst dict."""
     if dst_keys is None:
         for key in src_keys:
@@ -62,7 +63,7 @@ def cp_multi_values(src: dict, dst: dict, src_keys: tuple, dst_keys: tuple = Non
             dst[dst_key] = deepcopy(src[src_key])
 
 
-def has_multi_keys(src: dict, keys: tuple):
+def has_multi_keys(src: Dict, keys: Tuple):
     """Check if src dict has multiple keys."""
     for key in keys:
         if key not in src:
@@ -70,7 +71,7 @@ def has_multi_keys(src: dict, keys: tuple):
     return True
 
 
-def match_a_pattern(name: str, patterns: list[str]) -> str | None:
+def match_a_pattern(name: str, patterns: List[str]) -> str | None:
     for pattern in patterns:
         match = re.fullmatch(pattern, name)
         if match:
@@ -79,8 +80,8 @@ def match_a_pattern(name: str, patterns: list[str]) -> str | None:
 
 
 def create_a_layer_config(
-    linear_qc: dict = None, matmul_qc: dict = None, layer_qc=None
-) -> dict:
+    linear_qc: Dict = None, matmul_qc: Dict = None, layer_qc=None
+) -> Dict:
     if (layer_qc is None and matmul_qc is None) and layer_qc is None:
         raise ValueError("Must provide either (linear_qc & matmul_qc) or layer_qc")
 
@@ -110,16 +111,16 @@ def create_a_layer_config(
     return qc
 
 
-def by_type_parser(config: dict, num_hidden_layers: int) -> dict:
+def by_type_parser(config: Dict, num_hidden_layers: int) -> Dict:
     assert "default" in config, "Must provide a default config"
-    default_qc: dict = config["default"]
-    linear_qc: dict = parse_node_config(
+    default_qc: Dict = config["default"]
+    linear_qc: Dict = parse_node_config(
         config.get("linear", default_qc), mase_op="linear"
     )
-    matmul_qc: dict = parse_node_config(
+    matmul_qc: Dict = parse_node_config(
         config.get("matmul", default_qc), mase_op="matmul"
     )
-    layer_qc: dict = config.get("model_layer", None)
+    layer_qc: Dict = config.get("model_layer", None)
 
     p_config = {}
     for i in range(num_hidden_layers):
@@ -129,13 +130,13 @@ def by_type_parser(config: dict, num_hidden_layers: int) -> dict:
     return p_config
 
 
-def by_name_parser(config: dict, num_hidden_layers: int) -> dict:
+def by_name_parser(config: Dict, num_hidden_layers: int) -> Dict:
     assert "default" in config, "Must provide a default config"
-    default_qc: dict = config["default"]
-    linear_qc: dict = parse_node_config(
+    default_qc: Dict = config["default"]
+    linear_qc: Dict = parse_node_config(
         config.get("linear", default_qc), mase_op="linear"
     )
-    matmul_qc: dict = parse_node_config(
+    matmul_qc: Dict = parse_node_config(
         config.get("matmul", default_qc), mase_op="matmul"
     )
 
@@ -148,16 +149,22 @@ def by_name_parser(config: dict, num_hidden_layers: int) -> dict:
     return p_config
 
 
-def parse_bert_quantized_config(config: str | dict, num_hidden_layers: int) -> dict:
+def parse_bert_quantized_config(config: str | Dict, num_hidden_layers: int) -> Dict:
     assert isinstance(config, (str, dict)), "Must provide either a path or a dict"
     if isinstance(config, str):
         config = toml.load(config)
     config = convert_str_na_to_none(config)
     by = config.pop("by", "type")
-    match by:
-        case "type":
-            return by_type_parser(config, num_hidden_layers)
-        case "name":
-            return by_name_parser(config, num_hidden_layers)
-        case _:
-            raise ValueError(f"Unknown quantized config type: {by}")
+    # match by:
+    if by == "type": 
+    #     case "type":
+        #     return by_type_parser(config, num_hidden_layers)
+        return by_type_parser(config, num_hidden_layers)
+    #     case "name":
+    elif by == "name": 
+        #     return by_name_parser(config, num_hidden_layers)
+        return by_name_parser(config, num_hidden_layers)
+    #     case _:
+    else:
+        #     raise ValueError(f"Unknown quantized config type: {by}")
+        raise ValueError(f"Unknown quantized config type: {by}")

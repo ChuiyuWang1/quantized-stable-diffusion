@@ -1,4 +1,4 @@
-from typing import Any
+from typing import List, Dict, Any
 import torch
 import math
 import numpy as np
@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 class ActStatCollection:
-    def __init__(self, stats: dict[str, dict]) -> None:
-        self.stats: list[_StatBase] = []
+    def __init__(self, stats: Dict[str, dict]) -> None:
+        self.stats: List[_StatBase] = []
         for stat_name, stat_config in stats.items():
             self.stats.append(create_new_stat(stat_name, **stat_config))
 
@@ -30,7 +30,7 @@ class ActStatCollection:
                 for i in range(batch.size(0)):
                     stat.update_a_sample(batch[[i], ...])
 
-    def compute(self) -> dict[str, dict[str, list]]:
+    def compute(self) -> Dict[str, Dict[str, list]]:
         results = {}
         for stat in self.stats:
             results.update(stat.export())
@@ -44,8 +44,8 @@ class ActStatCollection:
 
 
 class WeightStatCollection:
-    def __init__(self, stats: dict[str, dict]) -> None:
-        self.stats: list[_StatBase] = []
+    def __init__(self, stats: Dict[str, Dict]) -> None:
+        self.stats: List[_StatBase] = []
         for stat_name, stat_config in stats.items():
             self.stats.append(create_new_stat(stat_name, **stat_config))
 
@@ -55,7 +55,7 @@ class WeightStatCollection:
             stat: _StatBase
             stat.update_a_sample(weight)
 
-    def compute(self) -> dict[str, dict[str, list]]:
+    def compute(self) -> Dict[str, Dict[str, list]]:
         results = {}
         for stat in self.stats:
             results.update(stat.export())
@@ -70,10 +70,10 @@ class WeightStatCollection:
 
 def graph_iterator_register_stat_collections_by_name(
     graph,
-    target_weight_nodes: list[str],
-    target_act_nodes: list[str],
-    weight_stats: dict[str, dict],
-    act_stats: dict[str, dict],
+    target_weight_nodes: List[str],
+    target_act_nodes: List[str],
+    weight_stats: Dict[str, Dict],
+    act_stats: Dict[str, Dict],
     profile_output_act: bool = False,
 ):
     # weight stats
@@ -110,10 +110,10 @@ def graph_iterator_register_stat_collections_by_name(
 
 def graph_iterator_register_stat_collections_by_type(
     graph,
-    target_weight_nodes: list[str],
-    target_act_nodes: list[str],
-    weight_stats: dict[str, dict],
-    act_stats: dict[str, dict],
+    target_weight_nodes: List[str],
+    target_act_nodes: List[str],
+    weight_stats: Dict[str, Dict],
+    act_stats: Dict[str, Dict],
     profile_output_act: bool = False,
 ):
     # weight stats
@@ -279,7 +279,7 @@ def graph_iterator_compute_and_unregister_stats(graph):
     return graph
 
 
-def profile_statistics_analysis_pass(graph, pass_arg: dict):
+def profile_statistics_analysis_pass(graph, pass_arg: Dict):
     """
     Profile statistics analysis pass
     """

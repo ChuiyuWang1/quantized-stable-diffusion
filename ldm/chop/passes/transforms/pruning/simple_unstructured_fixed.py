@@ -1,9 +1,10 @@
 import torch
+from typing import Dict
 
 from ldm.chop.passes.utils import get_mase_op, get_mase_type, get_node_actual_target
 
 
-def get_config(config: dict, name: str):
+def get_config(config: Dict, name: str):
     if name in config:
         return config[name]["config"]
 
@@ -58,7 +59,7 @@ def simple_unstructured_fixed_pruning(
 PRUNEABLE_OP = ["conv1d", "conv2d", "linear"]
 
 
-def graph_iterator_prune(graph, config: dict):
+def graph_iterator_prune(graph, config: Dict):
     for node in graph.fx_graph.nodes:
         if get_mase_op(node) not in PRUNEABLE_OP:
             continue
