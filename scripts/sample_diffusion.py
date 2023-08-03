@@ -274,6 +274,7 @@ if __name__ == "__main__":
     config = OmegaConf.merge(*configs, cli)
 
     gpu = True
+    # gpu = False
     eval_mode = True
 
     if opt.logdir != "none":
