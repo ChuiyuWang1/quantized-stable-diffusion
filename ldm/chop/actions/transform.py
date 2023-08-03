@@ -2,22 +2,22 @@ import os
 from copy import deepcopy
 
 import torch
-from chop.passes import PASSES
-from chop.passes.analysis import (
+from ldm.chop.passes import PASSES
+from ldm.chop.passes.analysis import (
     add_common_metadata_analysis_pass,
     add_software_metadata_analysis_pass,
     init_metadata_analysis_pass,
     report_node_type_analysis_pass,
 )
-from chop.passes.graph.mase_graph import MaseGraph
-from chop.passes.transforms.interface import (
+from ldm.chop.passes.graph.mase_graph import MaseGraph
+from ldm.chop.passes.transforms.interface import (
     load_mase_graph_transform_pass,
     save_mase_graph_transform_pass,
 )
-from chop.passes.utils import deepcopy_mase_graph
-from chop.tools.checkpoint_load import load_model
-from chop.tools.config_load import load_config
-from chop.tools.get_input import get_cf_args, get_dummy_input
+from ldm.chop.passes.utils import deepcopy_mase_graph
+from ldm.chop.tools.checkpoint_load import load_model
+from ldm.chop.tools.config_load import load_config
+from ldm.chop.tools.get_input import get_cf_args, get_dummy_input
 
 
 def pre_transform_load(load_name: str, load_type: str, model: torch.nn.Module):

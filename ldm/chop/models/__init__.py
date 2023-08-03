@@ -1,6 +1,6 @@
 from functools import partial
 
-# TODO: fix patched models
+""" # TODO: fix patched models
 # from .manual.toy_manual import get_toymanualnet
 # from .patched_nlp_models import get_patched_nlp_model
 from .patched_nlp_models import patched_model_cls_to_required_input_args
@@ -170,3 +170,4 @@ built_in_nlp_models = list(_built_in_nlp_model_map)
 patched_nlp_models = list(_patched_nlp_model_map.keys())
 manual_nlp_models = list(_manual_nlp_module_map.keys())
 nlp_models = built_in_nlp_models + patched_nlp_models + manual_nlp_models
+ """

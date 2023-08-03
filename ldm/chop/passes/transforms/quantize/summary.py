@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import numpy as np
 import pandas as pd
-from chop.passes.utils import get_mase_op, get_mase_type, get_node_actual_target
+from ldm.chop.passes.utils import get_mase_op, get_mase_type, get_node_actual_target
 from tabulate import tabulate
 
 logger = logging.getLogger(__name__)

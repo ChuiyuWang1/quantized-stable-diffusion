@@ -3,8 +3,8 @@ import logging
 import toml
 import torch
 import torch.fx as fx
-from chop.passes.metadata.mase_metadata import MaseMetadata
-from chop.passes.analysis.utils import (
+from ldm.chop.passes.metadata.mase_metadata import MaseMetadata
+from ldm.chop.passes.analysis.utils import (
     get_input_nodes,
     get_output_nodes,
 )

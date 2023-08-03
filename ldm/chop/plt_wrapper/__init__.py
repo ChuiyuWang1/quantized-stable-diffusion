@@ -4,7 +4,7 @@ from .nlp import (
     NLPLanguageModelingModelWrapper,
     NLPTranslationModelWrapper,
 )
-from chop.models import nlp_models, vision_models
+from ldm.chop.models import nlp_models, vision_models
 
 
 def get_model_wrapper(name, task):

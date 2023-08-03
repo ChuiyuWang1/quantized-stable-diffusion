@@ -32,7 +32,7 @@ from transformers.modeling_outputs import (
 from transformers.modeling_utils import PreTrainedModel
 from transformers.utils import logging, replace_return_docstrings
 
-# from chop.passes.patching.mase_op_wrapper import torch_ones
+# from ldm.chop.passes.patching.mase_op_wrapper import torch_ones
 
 from .configuration_opt_patched import OPTConfigPatched
 from .utils_opt_patched import (

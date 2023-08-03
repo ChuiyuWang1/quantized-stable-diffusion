@@ -2,7 +2,7 @@ import importlib
 import os
 
 import regex as re
-from chop.passes.common import MASE_IMPLICIT_FUNCS
+from ldm.chop.passes.common import MASE_IMPLICIT_FUNCS
 
 # from ..session.plt_wrapper.nlp.classification import NLPClassificationModelWrapper
 # from ..session.plt_wrapper.nlp.lm import NLPLanguageModelingModelWrapper

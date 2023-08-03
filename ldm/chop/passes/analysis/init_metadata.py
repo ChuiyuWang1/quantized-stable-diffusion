@@ -1,4 +1,4 @@
-from chop.passes.metadata import MaseMetadata
+from ldm.chop.passes.metadata import MaseMetadata
 
 
 def init_metadata_analysis_pass(graph, pass_args=None):

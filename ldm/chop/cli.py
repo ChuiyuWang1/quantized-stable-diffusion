@@ -39,9 +39,9 @@ import pytorch_lightning as pl
 from tabulate import tabulate
 
 import chop.models as models
-from chop.actions import test, train, transform, search
-from chop.dataset import MyDataModule, available_datasets, get_dataset_info
-from chop.tools import getLogger, post_parse_load_config
+from ldm.chop.actions import test, train, transform, search
+from ldm.chop.dataset import MyDataModule, available_datasets, get_dataset_info
+from ldm.chop.tools import getLogger, post_parse_load_config
 
 
 # Housekeeping -------------------------------------------------------------------------

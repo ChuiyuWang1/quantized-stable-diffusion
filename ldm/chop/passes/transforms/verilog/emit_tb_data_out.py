@@ -5,7 +5,7 @@ import time
 
 import torch
 
-from chop.passes.utils import vf, v2p, init_project
+from ldm.chop.passes.utils import vf, v2p, init_project
 
 logger = logging.getLogger(__name__)
 

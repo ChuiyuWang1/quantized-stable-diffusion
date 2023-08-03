@@ -1,5 +1,5 @@
 from .base import SearchSpaceBase
-from chop.passes.transforms.quantize import QUANTIZEABLE_OP, quantize_transform_pass
+from ldm.chop.passes.transforms.quantize import QUANTIZEABLE_OP, quantize_transform_pass
 from collections import defaultdict
 
 

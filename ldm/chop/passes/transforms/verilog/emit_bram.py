@@ -6,8 +6,8 @@ import time
 
 import torch
 
-from chop.passes.utils import vf, v2p, get_module_by_name, init_project
-from chop.passes.transforms.quantize.quantizers import integer_quantizer_for_hw
+from ldm.chop.passes.utils import vf, v2p, get_module_by_name, init_project
+from ldm.chop.passes.transforms.quantize.quantizers import integer_quantizer_for_hw
 
 logger = logging.getLogger(__name__)
 

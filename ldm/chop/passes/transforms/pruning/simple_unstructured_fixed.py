@@ -1,6 +1,6 @@
 import torch
 
-from chop.passes.utils import get_mase_op, get_mase_type, get_node_actual_target
+from ldm.chop.passes.utils import get_mase_op, get_mase_type, get_node_actual_target
 
 
 def get_config(config: dict, name: str):

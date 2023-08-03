@@ -155,8 +155,10 @@ def graph_iterator_register_stat_collections(
     act_stats,
     profile_output_act=False,
 ):
-    match by:
-        case "name":
+    # 'match' statement only available in Python 3.10
+    # match by:
+    if by == "name":
+    #     case "name":
             graph = graph_iterator_register_stat_collections_by_name(
                 graph,
                 target_weight_nodes,
@@ -164,7 +166,8 @@ def graph_iterator_register_stat_collections(
                 weight_stats,
                 act_stats,
             )
-        case "type":
+    #    case "type":
+    elif by == "type":
             graph = graph_iterator_register_stat_collections_by_type(
                 graph,
                 target_weight_nodes,
@@ -172,7 +175,8 @@ def graph_iterator_register_stat_collections(
                 weight_stats,
                 act_stats,
             )
-        case _:
+    #     case _:
+    else:
             raise ValueError(f"Unknown by: {by}")
 
     return graph

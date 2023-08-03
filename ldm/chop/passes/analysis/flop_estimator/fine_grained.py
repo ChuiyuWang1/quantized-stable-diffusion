@@ -9,7 +9,7 @@ from torch.fx import Graph, GraphModule, Interpreter
 from torch.fx.node import Argument, Target
 
 from .fx_profiler import GraphProfiler
-from chop.passes.graph import MaseTracer
+from ldm.chop.passes.graph import MaseTracer
 from ..utils import get_input_args
 from .calculator import calculate_funcs, calculate_modules
 

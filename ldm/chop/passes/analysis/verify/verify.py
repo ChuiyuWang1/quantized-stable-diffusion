@@ -1,6 +1,6 @@
 import logging
 
-from chop.passes.utils import vf
+from ldm.chop.passes.utils import vf
 
 from .common_metadata_layers import (
     verify_common_metadata_flatten,

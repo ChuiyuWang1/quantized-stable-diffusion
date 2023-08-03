@@ -4,7 +4,7 @@ import os
 import toml
 import torch
 import torch.fx as fx
-from chop.passes.analysis.init_metadata import init_metadata_analysis_pass
+from ldm.chop.passes.analysis.init_metadata import init_metadata_analysis_pass
 
 logger = logging.getLogger(__name__)
 

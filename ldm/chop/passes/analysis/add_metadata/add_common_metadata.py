@@ -4,13 +4,13 @@ import math
 import toml
 import torch
 import torch.fx as fx
-from chop.passes.analysis.utils import match_and_filter
-from chop.passes.common import (
+from ldm.chop.passes.analysis.utils import match_and_filter
+from ldm.chop.passes.common import (
     MASE_BUILTIN_FUNCS,
     MASE_MODULE_RELATED_FUNCS,
     MASE_IMPLICIT_FUNCS,
 )
-from chop.passes.metadata.mase_metadata import MaseMetadata
+from ldm.chop.passes.metadata.mase_metadata import MaseMetadata
 from tabulate import tabulate
 from torch import nn
 

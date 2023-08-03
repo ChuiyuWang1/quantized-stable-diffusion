@@ -7,8 +7,8 @@ from typing import Any, Callable, Dict, Optional, Tuple
 import toml
 import torch
 import torch.fx as fx
-from chop.passes.common import MASE_IMPLICIT_FUNCS
-from chop.passes.transforms import utils as utils_passes
+from ldm.chop.passes.common import MASE_IMPLICIT_FUNCS
+from ldm.chop.passes.transforms import utils as utils_passes
 from torch.fx import wrap as fx_wrap
 
 logger = logging.getLogger(__name__)

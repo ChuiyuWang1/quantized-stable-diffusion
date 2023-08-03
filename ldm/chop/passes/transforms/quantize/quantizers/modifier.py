@@ -11,7 +11,7 @@ import pandas as pd
 import toml
 import torch
 import torch.nn.functional as F
-from chop.utils import copy_weights
+from ldm.chop.utils import copy_weights
 from tabulate import tabulate
 from torch import nn
 from torch.fx import GraphModule, Node

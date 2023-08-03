@@ -1,7 +1,7 @@
 import math, time, os, logging, torch, glob, shutil
 
-from chop.passes.utils import vf, v2p, init_project
-from chop.passes.transforms.quantize.quantizers import integer_quantizer_for_hw
+from ldm.chop.passes.utils import vf, v2p, init_project
+from ldm.chop.passes.transforms.quantize.quantizers import integer_quantizer_for_hw
 from .emit_tb_data_in import emit_data_in_tb_sv, emit_data_in_tb_dat
 from .emit_tb_data_out import emit_data_out_tb_sv, emit_data_out_tb_dat
 from .emit_tb_testbench import emit_top_tb

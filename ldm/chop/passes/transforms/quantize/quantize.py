@@ -1,14 +1,14 @@
 import os
 from copy import copy, deepcopy
 
-from chop.passes.utils import (
+from ldm.chop.passes.utils import (
     get_mase_op,
     get_mase_type,
     get_node_actual_target,
     get_parent_name,
     match_a_pattern,
 )
-from chop.tools.logger import getLogger
+from ldm.chop.tools.logger import getLogger
 
 from .modify import create_new_fn, create_new_module
 from .quant_parsers import parse_node_config, relink_node_meta, update_quant_meta_param

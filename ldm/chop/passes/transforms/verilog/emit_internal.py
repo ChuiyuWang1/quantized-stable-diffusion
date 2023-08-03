@@ -2,7 +2,7 @@ import logging
 import os
 import shutil
 
-from chop.passes.utils import init_project
+from ldm.chop.passes.utils import init_project
 from .internal_file_dependences import INTERNAL_RTL_DEPENDENCIES
 
 logger = logging.getLogger(__name__)

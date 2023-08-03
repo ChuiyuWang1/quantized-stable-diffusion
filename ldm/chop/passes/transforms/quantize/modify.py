@@ -4,7 +4,7 @@ Some of the functions here are taken from the Modifier class we had before
 from typing import Dict
 
 import torch
-from chop.tools.utils import copy_weights
+from ldm.chop.tools.utils import copy_weights
 from torch import nn
 
 from .quantized_funcs import quantized_func_map

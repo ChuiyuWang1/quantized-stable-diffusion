@@ -2,7 +2,7 @@ import logging
 import os
 import torch
 
-from chop.plt_wrapper import get_model_wrapper
+from ldm.chop.plt_wrapper import get_model_wrapper
 from .forwards import ForwardMap
 
 """

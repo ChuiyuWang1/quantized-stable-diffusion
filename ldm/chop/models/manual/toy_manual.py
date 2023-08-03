@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from chop.passes.transforms.quantize.quantized_modules import LinearInteger
+from ldm.chop.passes.transforms.quantize.quantized_modules import LinearInteger
 
 from .base import ManualBase
 

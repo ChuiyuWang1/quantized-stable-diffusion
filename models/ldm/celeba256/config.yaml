@@ -15,7 +15,7 @@ model:
     concat_mode: false
     monitor: val/loss
     unet_config:
-      target: ldm.modules.diffusionmodules.openaimodel.UNetModel
+      target: ldm.modules.diffusionmodules_quant.openaimodel.UNetModel
       params:
         image_size: 64
         in_channels: 3
@@ -32,6 +32,8 @@ model:
         - 3
         - 4
         num_head_channels: 32
+        quant_config: 
+          target: ldm.modules.quant_config.UNetQuantConfig
     first_stage_config:
       target: ldm.models.autoencoder.VQModelInterface
       params:

@@ -16,7 +16,7 @@ import numpy as np
 from einops import repeat
 
 from ldm.util import instantiate_from_config
-from ldm.chop.models.manual.quant_utils import *
+#from ldm.chop.models.manual.quant_utils import *
 
 
 def make_beta_schedule(schedule, n_timestep, linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3):

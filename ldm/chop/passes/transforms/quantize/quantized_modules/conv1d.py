@@ -4,7 +4,7 @@ from math import ceil, log2
 from typing import Union
 
 import torch
-from chop.passes.transforms.quantize.quantizers import (
+from ldm.chop.passes.transforms.quantize.quantizers import (
     block_fp_quantizer,
     block_log_quantizer,
     block_minifloat_quantizer,

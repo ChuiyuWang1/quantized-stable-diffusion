@@ -2,7 +2,7 @@ import inspect
 import math
 
 import torch
-from chop.passes.utils import vf, get_node_by_name
+from ldm.chop.passes.utils import vf, get_node_by_name
 
 # ----------------------------------------------------------
 # Placeholder

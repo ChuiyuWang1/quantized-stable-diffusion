@@ -35,7 +35,7 @@ import inspect
 import math
 
 import torch
-from chop.passes.utils import vf
+from ldm.chop.passes.utils import vf
 
 # ----------------------------------------------------------
 # Linear

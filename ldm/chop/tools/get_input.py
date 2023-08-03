@@ -1,7 +1,7 @@
 import inspect
 from typing import Literal
 
-from chop.models import (
+from ldm.chop.models import (
     nlp_models,
     patched_model_cls_to_required_input_args,
     patched_nlp_models,

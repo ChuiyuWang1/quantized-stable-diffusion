@@ -15,8 +15,8 @@ from .search_space import search_space_map
 from .strategies import strategy_map
 from .runner import runner_map
 
-from chop.passes.graph.mase_graph import MaseGraph
-from chop.passes import init_metadata_analysis_pass, add_mase_ops_analysis_pass
+from ldm.chop.passes.graph.mase_graph import MaseGraph
+from ldm.chop.passes import init_metadata_analysis_pass, add_mase_ops_analysis_pass
 
 
 logger = logging.getLogger(__name__)

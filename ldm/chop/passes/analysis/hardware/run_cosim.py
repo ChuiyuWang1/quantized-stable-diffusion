@@ -1,7 +1,7 @@
 import logging
 import os
 
-from chop.tools.utils import execute_cli
+from ldm.chop.tools.utils import execute_cli
 
 logger = logging.getLogger(__name__)
 

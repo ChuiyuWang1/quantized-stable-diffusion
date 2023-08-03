@@ -4,7 +4,7 @@ import copy
 import toml
 
 from torch import nn
-from chop.passes.utils import get_mase_op, get_mase_type
+from ldm.chop.passes.utils import get_mase_op, get_mase_type
 
 # from ..graph.mase_tracer import mase_symbolic_trace
 # from ..graph.utils import get_module_by_target
