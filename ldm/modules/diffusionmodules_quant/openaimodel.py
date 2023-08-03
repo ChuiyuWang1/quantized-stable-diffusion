@@ -19,6 +19,7 @@ from ldm.modules.diffusionmodules_quant.util import (
 )
 from ldm.modules.attention import SpatialTransformer
 from ldm.chop.models.manual.quant_utils import *
+from ldm.util import instantiate_from_config
 
 
 # dummy replace
@@ -502,7 +503,7 @@ class UNetModel(nn.Module):
         use_fp16=False,
         num_heads=-1,
         num_head_channels=-1,
-        quant_config=None,                # quantization configuration
+        quant_config={},                # quantization configuration
         num_heads_upsample=-1,
         use_scale_shift_norm=False,
         resblock_updown=False,
@@ -548,6 +549,8 @@ class UNetModel(nn.Module):
         self.num_head_channels = num_head_channels
         self.num_heads_upsample = num_heads_upsample
         self.predict_codebook_ids = n_embed is not None
+        print(quant_config)
+        quant_config = instantiate_from_config(quant_config)
 
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(
@@ -829,7 +832,7 @@ class EncoderUNetModel(nn.Module):
         num_heads=1,
         num_head_channels=-1,
         num_heads_upsample=-1,
-        quant_config=None,
+        quant_config={},
         use_scale_shift_norm=False,
         resblock_updown=False,
         use_new_attention_order=False,
@@ -855,6 +858,8 @@ class EncoderUNetModel(nn.Module):
         self.num_heads = num_heads
         self.num_head_channels = num_head_channels
         self.num_heads_upsample = num_heads_upsample
+
+        quant_config = instantiate_from_config(quant_config)
 
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(
