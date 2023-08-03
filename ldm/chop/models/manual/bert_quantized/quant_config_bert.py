@@ -1,6 +1,6 @@
 import os
 import re
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union
 from copy import deepcopy
 
 import toml
@@ -71,7 +71,7 @@ def has_multi_keys(src: Dict, keys: Tuple):
     return True
 
 
-def match_a_pattern(name: str, patterns: List[str]) -> str | None:
+def match_a_pattern(name: str, patterns: List[str]) -> Union[str, None]:
     for pattern in patterns:
         match = re.fullmatch(pattern, name)
         if match:
@@ -149,7 +149,7 @@ def by_name_parser(config: Dict, num_hidden_layers: int) -> Dict:
     return p_config
 
 
-def parse_bert_quantized_config(config: str | Dict, num_hidden_layers: int) -> Dict:
+def parse_bert_quantized_config(config: Union[str, Dict], num_hidden_layers: int) -> Dict:
     assert isinstance(config, (str, dict)), "Must provide either a path or a dict"
     if isinstance(config, str):
         config = toml.load(config)

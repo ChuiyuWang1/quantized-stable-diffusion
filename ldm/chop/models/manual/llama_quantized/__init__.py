@@ -35,7 +35,7 @@ vicuna = LlamaQuantizedForCausalLM.from_pretrained(
 """
 from accelerate import init_empty_weights, init_on_device
 from transformers import AutoTokenizer
-from typing import Dict
+from typing import Dict, Union
 
 from .configuration_llama import LlamaQuantizedConfig
 from .modeling_llama import (
@@ -48,7 +48,7 @@ def get_llama_quant(
     name: str,
     task: str,
     info: Dict,
-    quant_config: Dict | str,
+    quant_config: Union[Dict, str],
     device: str = "meta",
     return_tokenizer: bool = False,
 ):

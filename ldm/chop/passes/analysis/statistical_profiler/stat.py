@@ -1,6 +1,6 @@
 import math
 import logging
-from typing import List, Dict, Literal
+from typing import List, Dict, Literal, Union
 
 import numpy as np
 import torch
@@ -126,7 +126,7 @@ class VarianceOnline(_StatBase):
 
     name = "variance_online"
 
-    def __init__(self, device=None, dims: Literal["all"] | None | List = "all") -> None:
+    def __init__(self, device=None, dims: Union[Literal["all"], None, List] = "all") -> None:
         super().__init__()
         self.device = device
         if isinstance(dims, (list, tuple)):
@@ -274,7 +274,7 @@ class VariancePrecise(Record):
 
     name = "variance_precise"
 
-    def __init__(self, device=None, dims: Literal["all"] | None | List = "all") -> None:
+    def __init__(self, device=None, dims: Union[Literal["all"], None, List] = "all") -> None:
         super().__init__(device=device, add_new_dim_before_concat=True)
         self.dims_to_reduce = dims
 
@@ -341,9 +341,9 @@ class RangeNSigma(VarianceOnline, VariancePrecise):
     def __init__(
         self,
         device=None,
-        dims: Literal["all"] | None | List = "all",
+        dims: Union[Literal["all"], None, List] = "all",
         abs: bool = False,
-        var_mode: Literal["precise"] | Literal["online"] = "online",
+        var_mode: Union[Literal["precise"], Literal["online"]] = "online",
         num_sigma: int = 3,
     ) -> None:
         VarianceOnline.__init__(self, device=device, dims=dims)
@@ -403,7 +403,7 @@ class RangeMinMax(_StatBase):
     name = "range_min_max"
 
     def __init__(
-        self, device=None, dims: Literal["all"] | List | None = "all", abs: bool = False
+        self, device=None, dims: Union[Literal["all"], List, None] = "all", abs: bool = False
     ) -> None:
         super().__init__()
         self.device = device
@@ -500,7 +500,7 @@ class RangeQuantile(Record):
         self,
         device=None,
         abs: bool = False,
-        dims: Literal["all"] | None | List = "all",
+        dims: Union[Literal["all"], None, List] = "all",
         quantile: float = 0.975,
     ) -> None:
         super().__init__(device=device, add_new_dim_before_concat=True)

@@ -2,7 +2,7 @@ import inspect
 import re
 import os
 from copy import deepcopy
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
 import torch
 
@@ -19,7 +19,7 @@ def isinstance_but_not_subclass(my_object, my_class):
     return my_object.__class__ is my_class
 
 
-def match_a_pattern(name: str, patterns: List[str]) -> str | None:
+def match_a_pattern(name: str, patterns: List[str]) -> Union[str, None]:
     for pattern in patterns:
         match = re.fullmatch(pattern, name)
         if match:

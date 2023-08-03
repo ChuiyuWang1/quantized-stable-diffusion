@@ -21,7 +21,7 @@
 
 from transformers.configuration_utils import PretrainedConfig
 from transformers.utils import logging
-from typing import Dict
+from typing import Dict, Union
 
 from .quant_config_llama import parse_llama_quantized_config
 
@@ -126,7 +126,7 @@ class LlamaQuantizedConfig(PretrainedConfig):
         bos_token_id=1,
         eos_token_id=2,
         tie_word_embeddings=False,
-        quant_config: Dict | str = None,
+        quant_config: Union[Dict, str] = None,
         **kwargs,
     ):
         self.vocab_size = vocab_size

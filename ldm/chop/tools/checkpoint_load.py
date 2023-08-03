@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Union
 
 import torch
 
@@ -48,7 +49,7 @@ def load_graph_module_ckpt(checkpoint: str):
 
 def load_model(
     load_name: str, load_type: str = "mz", model: torch.nn.Module = None
-) -> torch.nn.Module | torch.fx.GraphModule:
+) -> Union[torch.nn.Module, torch.fx.GraphModule]:
     """Load a pytorch/lightning/mase checkpoint to a model.
 
     Args:

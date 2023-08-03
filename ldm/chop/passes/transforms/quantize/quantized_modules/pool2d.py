@@ -20,11 +20,11 @@ class _AvgPool2dBase(torch.nn.AvgPool2d):
     def __init__(
         self,
         kernel_size: _size_2_t,
-        stride: _size_2_t | None = None,
+        stride: Union[_size_2_t, None] = None,
         padding: _size_2_t = 0,
         ceil_mode: bool = False,
         count_include_pad: bool = True,
-        divisor_override: int | None = None,
+        divisor_override: Union[int, None] = None,
     ) -> None:
         super().__init__(
             kernel_size, stride, padding, ceil_mode, count_include_pad, divisor_override

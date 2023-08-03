@@ -1,7 +1,7 @@
 import os
 import re
 from copy import deepcopy
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union
 from dataclasses import dataclass
 
 import toml
@@ -53,7 +53,7 @@ def has_multi_keys(src: Dict, keys: Tuple):
     return True
 
 
-def match_a_pattern(name: str, patterns: List[str]) -> str | None:
+def match_a_pattern(name: str, patterns: List[str]) -> Union[str, None]:
     for pattern in patterns:
         match = re.fullmatch(pattern, name)
         if match:
@@ -128,7 +128,7 @@ def by_name_parser(config: Dict, num_hidden_layers: int) -> Dict:
     return p_config
 
 
-def parse_llama_quantized_config(config: str | Dict, num_hidden_layers: int) -> Dict:
+def parse_llama_quantized_config(config: Union[str, Dict], num_hidden_layers: int) -> Dict:
     assert isinstance(
         config, (str, dict)
     ), "config must be a str path to config toml or dict"

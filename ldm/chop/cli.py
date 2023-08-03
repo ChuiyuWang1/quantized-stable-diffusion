@@ -31,7 +31,7 @@ import sys
 import time
 import argparse
 from argparse import SUPPRESS
-from typing import Sequence
+from typing import Sequence, Union
 from pathlib import Path
 
 import ipdb
@@ -151,7 +151,8 @@ CLI_DEFAULTS = {
 
 # Main ---------------------------------------------------------------------------------
 class ChopCLI:
-    def __init__(self, argv: Sequence[str] | None = None):
+    # def __init__(self, argv: Sequence[str] | None = None):
+    def __init__(self, argv: Union[Sequence[str], None] = None):
         super().__init__()
 
         self.logger = getLogger("chop")
@@ -773,7 +774,7 @@ def _valid_directorypath(path: str):
 
 
 # Returns None for values less than or equal to 0
-def _maybe_positive_int(s: str) -> int | None:
+def _maybe_positive_int(s: str) -> Union[int, None]:
     try:
         v = int(s)
     except ValueError:
