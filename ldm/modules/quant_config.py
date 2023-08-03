@@ -79,6 +79,7 @@ class UNetQuantConfig():
         self.quant_config["unet_codebook"] = {"name": "integer", "weight_width": 8, "weight_frac_width": 4,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 4}
+        print("Loaded quantization config.")
     
     def get(self, item: str) -> Dict:
         if item in self.config_keys:
