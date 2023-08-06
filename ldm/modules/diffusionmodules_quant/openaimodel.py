@@ -207,6 +207,7 @@ class ResBlock(TimestepBlock):
         up=False,
         down=False,
         quant_config=None,
+        layer_idx=-1,
     ):
         super().__init__()
         self.channels = channels
@@ -220,10 +221,10 @@ class ResBlock(TimestepBlock):
         self.in_layers = nn.Sequential(
             normalization(channels),
             # nn.SiLU(),
-            get_quantized_cls("silu", quant_config.get("silu_res_in"))(config=quant_config.get("silu_res_in")),
+            get_quantized_cls("silu", quant_config.get("silu_res_in")[layer_idx])(config=quant_config.get("silu_res_in")[layer_idx]),
             # conv_nd(dims, channels, self.out_channels, 3, padding=1),
-            get_quantized_cls("conv2d", quant_config.get("resblock_in"))(
-                channels, self.out_channels, 3, padding=1, config=quant_config.get("resblock_in")
+            get_quantized_cls("conv2d", quant_config.get("resblock_in")[layer_idx])(
+                channels, self.out_channels, 3, padding=1, config=quant_config.get("resblock_in")[layer_idx]
             ),
         )
 
@@ -240,26 +241,26 @@ class ResBlock(TimestepBlock):
 
         self.emb_layers = nn.Sequential(
             # nn.SiLU(),
-            get_quantized_cls("silu", quant_config.get("silu_res_emb"))(config=quant_config.get("silu_res_emb")),
+            get_quantized_cls("silu", quant_config.get("silu_res_emb")[layer_idx])(config=quant_config.get("silu_res_emb")[layer_idx]),
             # linear(
             #     emb_channels,
             #     2 * self.out_channels if use_scale_shift_norm else self.out_channels,
             # ),
-            get_quantized_cls("linear", quant_config.get("resblock_emb"))(
+            get_quantized_cls("linear", quant_config.get("resblock_emb")[layer_idx])(
                 emb_channels,
                 2 * self.out_channels if use_scale_shift_norm else self.out_channels,
-                config=quant_config.get("resblock_emb")
+                config=quant_config.get("resblock_emb")[layer_idx]
             )
         )
         self.out_layers = nn.Sequential(
             normalization(self.out_channels),
             # nn.SiLU(),
-            get_quantized_cls("silu", quant_config.get("silu_res_out"))(config=quant_config.get("silu_res_out")),
+            get_quantized_cls("silu", quant_config.get("silu_res_out")[layer_idx])(config=quant_config.get("silu_res_out")[layer_idx]),
             nn.Dropout(p=dropout),
             zero_module(
                 # conv_nd(dims, self.out_channels, self.out_channels, 3, padding=1)
-                get_quantized_cls("conv2d", quant_config.get("resblock_out"))(
-                    self.out_channels, self.out_channels, 3, padding=1, config=quant_config.get("resblock_out")
+                get_quantized_cls("conv2d", quant_config.get("resblock_out")[layer_idx])(
+                    self.out_channels, self.out_channels, 3, padding=1, config=quant_config.get("resblock_out")[layer_idx]
                 )
             ),
         )
@@ -270,13 +271,13 @@ class ResBlock(TimestepBlock):
             # self.skip_connection = conv_nd(
             #     dims, channels, self.out_channels, 3, padding=1
             # )
-            self.skip_connection = get_quantized_cls("conv2d", quant_config.get("resblock_skip"))(
-                channels, self.out_channels, 3, padding=1, config=quant_config.get("resblock_skip")
+            self.skip_connection = get_quantized_cls("conv2d", quant_config.get("resblock_skip")[layer_idx])(
+                channels, self.out_channels, 3, padding=1, config=quant_config.get("resblock_skip")[layer_idx]
             )
         else:
             # self.skip_connection = conv_nd(dims, channels, self.out_channels, 1)
-            self.skip_connection = get_quantized_cls("conv2d", quant_config.get("resblock_skip"))(
-                channels, self.out_channels, 1, config=quant_config.get("resblock_skip")
+            self.skip_connection = get_quantized_cls("conv2d", quant_config.get("resblock_skip")[layer_idx])(
+                channels, self.out_channels, 1, config=quant_config.get("resblock_skip")[layer_idx]
             )
 
     def forward(self, x, emb):
@@ -329,6 +330,7 @@ class AttentionBlock(nn.Module):
         use_checkpoint=False,
         use_new_attention_order=False,
         quant_config=None,
+        layer_idx=-1,
     ):
         super().__init__()
         self.channels = channels
@@ -342,8 +344,8 @@ class AttentionBlock(nn.Module):
         self.use_checkpoint = use_checkpoint
         self.norm = normalization(channels)
         # self.qkv = conv_nd(1, channels, channels * 3, 1)
-        self.qkv = get_quantized_cls("conv1d", quant_config.get("attblock_qkv"))(
-            channels, channels * 3, 1, config=quant_config.get("attblock_qkv")
+        self.qkv = get_quantized_cls("conv1d", quant_config.get("attblock_qkv")[layer_idx])(
+            channels, channels * 3, 1, config=quant_config.get("attblock_qkv")[layer_idx]
         )
         if use_new_attention_order:
             # split qkv before split heads
@@ -354,7 +356,9 @@ class AttentionBlock(nn.Module):
 
         self.proj_out = zero_module(
             # conv_nd(1, channels, channels, 1)
-            get_quantized_cls("conv1d", quant_config.get("attblock_out"))(channels, channels, 1, config=quant_config.get("attblock_out"))
+            get_quantized_cls("conv1d", quant_config.get("attblock_out")[layer_idx])(
+                channels, channels, 1, config=quant_config.get("attblock_out")[layer_idx]
+                )
             )
 
     def forward(self, x):
@@ -555,11 +559,11 @@ class UNetModel(nn.Module):
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(
             # linear(model_channels, time_embed_dim),
-            get_quantized_cls("linear", quant_config.get("unet_temb"))(model_channels, time_embed_dim, config=quant_config.get("unet_temb")),
+            get_quantized_cls("linear", quant_config.get("temb_1"))(model_channels, time_embed_dim, config=quant_config.get("temb_1")),
             # nn.SiLU(),
-            get_quantized_cls("silu", quant_config.get("silu_unet_temb"))(config=quant_config.get("silu_unet_temb")), 
+            get_quantized_cls("silu", quant_config.get("silu_temb"))(config=quant_config.get("silu_temb")), 
             # linear(time_embed_dim, time_embed_dim),
-            get_quantized_cls("linear", quant_config.get("unet_temb"))(time_embed_dim, time_embed_dim, config=quant_config.get("unet_temb")),
+            get_quantized_cls("linear", quant_config.get("temb_2"))(time_embed_dim, time_embed_dim, config=quant_config.get("temb_2")),
         )
 
         if self.num_classes is not None:
@@ -577,6 +581,10 @@ class UNetModel(nn.Module):
         input_block_chans = [model_channels]
         ch = model_channels
         ds = 1
+        resblock_idx = 0
+        attblock_idx = 0
+        up_idx = 0
+        down_idx = 0
         for level, mult in enumerate(channel_mult):
             for _ in range(num_res_blocks):
                 layers = [
@@ -589,8 +597,10 @@ class UNetModel(nn.Module):
                         use_checkpoint=use_checkpoint,
                         use_scale_shift_norm=use_scale_shift_norm,
                         quant_config=quant_config,
+                        layer_idx=resblock_idx,
                     )
                 ]
+                resblock_idx += 1
                 ch = mult * model_channels
                 if ds in attention_resolutions:
                     if num_head_channels == -1:
@@ -609,10 +619,12 @@ class UNetModel(nn.Module):
                             num_head_channels=dim_head,
                             use_new_attention_order=use_new_attention_order,
                             quant_config=quant_config,
+                            layer_idx=attblock_idx,
                         ) if not use_spatial_transformer else SpatialTransformer(
                             ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim
                         )
                     )
+                    attblock_idx += 1
                 self.input_blocks.append(TimestepEmbedSequential(*layers))
                 self._feature_size += ch
                 input_block_chans.append(ch)
@@ -630,6 +642,7 @@ class UNetModel(nn.Module):
                             use_scale_shift_norm=use_scale_shift_norm,
                             down=True,
                             quant_config=quant_config,
+                            layer_idx=resblock_idx
                         )
                         if resblock_updown
                         else Downsample(
@@ -637,6 +650,12 @@ class UNetModel(nn.Module):
                         )
                     )
                 )
+
+                if resblock_updown:
+                    resblock_idx += 1
+                else:
+                    down_idx += 1
+
                 ch = out_ch
                 input_block_chans.append(ch)
                 ds *= 2
@@ -659,6 +678,7 @@ class UNetModel(nn.Module):
                 use_checkpoint=use_checkpoint,
                 use_scale_shift_norm=use_scale_shift_norm,
                 quant_config=quant_config,
+                layer_idx=resblock_idx
             ),
             AttentionBlock(
                 ch,
@@ -667,6 +687,7 @@ class UNetModel(nn.Module):
                 num_head_channels=dim_head,
                 use_new_attention_order=use_new_attention_order,
                 quant_config=quant_config,
+                layer_idx=attblock_idx,
             ) if not use_spatial_transformer else SpatialTransformer(
                             ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim
                         ),
@@ -678,8 +699,12 @@ class UNetModel(nn.Module):
                 use_checkpoint=use_checkpoint,
                 use_scale_shift_norm=use_scale_shift_norm,
                 quant_config=quant_config,
+                layer_idx=resblock_idx + 1
             ),
         )
+        resblock_idx += 2
+        attblock_idx += 1
+
         self._feature_size += ch
 
         self.output_blocks = nn.ModuleList([])
@@ -696,8 +721,10 @@ class UNetModel(nn.Module):
                         use_checkpoint=use_checkpoint,
                         use_scale_shift_norm=use_scale_shift_norm,
                         quant_config=quant_config,
+                        layer_idx=resblock_idx,
                     )
                 ]
+                resblock_idx += 1
                 ch = model_channels * mult
                 if ds in attention_resolutions:
                     if num_head_channels == -1:
@@ -716,10 +743,12 @@ class UNetModel(nn.Module):
                             num_head_channels=dim_head,
                             use_new_attention_order=use_new_attention_order,
                             quant_config=quant_config,
+                            layer_idx=attblock_idx,
                         ) if not use_spatial_transformer else SpatialTransformer(
                             ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim
                         )
                     )
+                    attblock_idx += 1
                 if level and i == num_res_blocks:
                     out_ch = ch
                     layers.append(
@@ -733,10 +762,17 @@ class UNetModel(nn.Module):
                             use_scale_shift_norm=use_scale_shift_norm,
                             up=True,
                             quant_config=quant_config,
+                            layer_idx=resblock_idx
                         )
                         if resblock_updown
                         else Upsample(ch, conv_resample, dims=dims, out_channels=out_ch, quant_config=quant_config)
                     )
+
+                    if resblock_updown: 
+                        resblock_idx += 1
+                    else:
+                        up_idx += 1
+
                     ds //= 2
                 self.output_blocks.append(TimestepEmbedSequential(*layers))
                 self._feature_size += ch
