@@ -1,12 +1,12 @@
 from typing import Dict
 
-def add_int_recursive(item, value):
+def add_int_recursive(item, add_value):
     if isinstance(item, int):
-        return item + value
+        return item + add_value
     elif isinstance(item, list):
-        return [add_int_recursive(element) for element in item]
+        return [add_int_recursive(element, add_value) for element in item]
     elif isinstance(item, dict):
-        return {key: add_int_recursive(value) for key, value in item.items()}
+        return {key: add_int_recursive(value, add_value) for key, value in item.items()}
     else:
         return item
 
