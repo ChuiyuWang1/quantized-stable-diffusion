@@ -1,5 +1,15 @@
 from typing import Dict
 
+def add_int_recursive(item, value):
+    if isinstance(item, int):
+        return item + value
+    elif isinstance(item, list):
+        return [add_int_recursive(element) for element in item]
+    elif isinstance(item, dict):
+        return {key: add_int_recursive(value) for key, value in item.items()}
+    else:
+        return item
+
 class CelebA256UNetQuantConfig():
     def __init__(self, bitwidth=8) -> None:
         self.quant_config = {}
@@ -693,6 +703,9 @@ class CelebA256UNetQuantConfig():
                                             "data_in_width": 8, "data_in_frac_width": 5, 
                                             "bias_width": 8, "bias_frac_width": 13}
         
+        self.quant_config = add_int_recursive(self.quant_config)
+        print(self.quant_config)
+
         print("Loaded quantization config.")
     
     def get(self, item: str) -> Dict:
