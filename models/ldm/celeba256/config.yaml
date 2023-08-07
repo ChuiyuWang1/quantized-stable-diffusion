@@ -34,6 +34,8 @@ model:
         num_head_channels: 32
         quant_config: 
           target: ldm.modules.quant_config.CelebA256UNetQuantConfig
+          params: 
+            bitwidth: 16
     first_stage_config:
       target: ldm.models.autoencoder.VQModelInterface
       params:

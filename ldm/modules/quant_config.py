@@ -703,7 +703,7 @@ class CelebA256UNetQuantConfig():
                                             "data_in_width": 8, "data_in_frac_width": 5, 
                                             "bias_width": 8, "bias_frac_width": 13}
         
-        self.quant_config = add_int_recursive(self.quant_config)
+        self.quant_config = add_int_recursive(self.quant_config, bitwidth - 8)
         print(self.quant_config)
 
         print("Loaded quantization config.")
