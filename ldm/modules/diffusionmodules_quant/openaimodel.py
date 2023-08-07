@@ -106,7 +106,7 @@ class Upsample(nn.Module):
                  upsampling occurs in the inner-two dimensions.
     """
 
-    def __init__(self, channels, use_conv, dims=2, out_channels=None, padding=1, quant_config=None):
+    def __init__(self, channels, use_conv, dims=2, out_channels=None, padding=1, quant_config=None, layer_idx=-1):
         super().__init__()
         self.channels = channels
         self.out_channels = out_channels or channels
@@ -114,8 +114,8 @@ class Upsample(nn.Module):
         self.dims = dims
         if use_conv:
             # self.conv = conv_nd(dims, self.channels, self.out_channels, 3, padding=padding)
-            self.conv = get_quantized_cls("conv2d", quant_config.get("upsample"))(
-                self.channels, self.out_channels, 3, padding=padding, config=quant_config.get("upsample")
+            self.conv = get_quantized_cls("conv2d", quant_config.get("upsample")[layer_idx])(
+                self.channels, self.out_channels, 3, padding=padding, config=quant_config.get("upsample")[layer_idx]
             )
 
     def forward(self, x):
@@ -152,7 +152,7 @@ class Downsample(nn.Module):
                  downsampling occurs in the inner-two dimensions.
     """
 
-    def __init__(self, channels, use_conv, dims=2, out_channels=None,padding=1, quant_config=None):
+    def __init__(self, channels, use_conv, dims=2, out_channels=None,padding=1, quant_config=None, layer_idx=-1):
         super().__init__()
         self.channels = channels
         self.out_channels = out_channels or channels
@@ -163,8 +163,8 @@ class Downsample(nn.Module):
             # self.op = conv_nd(
             #     dims, self.channels, self.out_channels, 3, stride=stride, padding=padding
             # )
-            self.op = get_quantized_cls("conv2d", quant_config.get("downsample"))(
-                self.channels, self.out_channels, 3, stride=stride, padding=padding, config=quant_config.get("downsample")
+            self.op = get_quantized_cls("conv2d", quant_config.get("downsample")[layer_idx])(
+                self.channels, self.out_channels, 3, stride=stride, padding=padding, config=quant_config.get("downsample")[layer_idx]
             )
         else:
             assert self.channels == self.out_channels
@@ -646,7 +646,7 @@ class UNetModel(nn.Module):
                         )
                         if resblock_updown
                         else Downsample(
-                            ch, conv_resample, dims=dims, out_channels=out_ch, quant_config=quant_config
+                            ch, conv_resample, dims=dims, out_channels=out_ch, quant_config=quant_config, layer_idx=down_idx
                         )
                     )
                 )
@@ -765,7 +765,7 @@ class UNetModel(nn.Module):
                             layer_idx=resblock_idx
                         )
                         if resblock_updown
-                        else Upsample(ch, conv_resample, dims=dims, out_channels=out_ch, quant_config=quant_config)
+                        else Upsample(ch, conv_resample, dims=dims, out_channels=out_ch, quant_config=quant_config, layer_idx=up_idx)
                     )
 
                     if resblock_updown: 

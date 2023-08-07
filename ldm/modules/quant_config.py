@@ -1,6 +1,6 @@
 from typing import Dict
 
-class UNetQuantConfig():
+class CelebA256UNetQuantConfig():
     def __init__(self) -> None:
         self.quant_config = {}
         self.config_keys = [
@@ -26,13 +26,20 @@ class UNetQuantConfig():
             "unet_out",
             "unet_codebook",
             ]
-        """
+        
         self.quant_config["attpool_qkf"] = {"name": "integer", "weight_width": 8, "weight_frac_width": 5,
                                             "data_in_width": 8, "data_in_frac_width": 5, 
                                             "bias_width": 8, "bias_frac_width": 5}
         self.quant_config["attpool_c"] = {"name": "integer", "weight_width": 8, "weight_frac_width": 5,
                                             "data_in_width": 8, "data_in_frac_width": 5, 
                                             "bias_width": 8, "bias_frac_width": 5}
+        self.quant_config["unet_codebook"] = {"name": "integer", "weight_width": 8, "weight_frac_width": 5,
+                                            "data_in_width": 8, "data_in_frac_width": 5, 
+                                            "bias_width": 8, "bias_frac_width": 5}
+        self.quant_config["avg_pool2d"] = {"name": "integer",
+                                           "data_in_width": 8, "data_in_frac_width": 5}
+        
+        """
         self.quant_config["upsample"] = {"name": "integer", "weight_width": 8, "weight_frac_width": 5,
                                             "data_in_width": 8, "data_in_frac_width": 5, 
                                             "bias_width": 8, "bias_frac_width": 5}
@@ -78,9 +85,7 @@ class UNetQuantConfig():
         self.quant_config["unet_out"] = {"name": "integer", "weight_width": 8, "weight_frac_width": 5,
                                             "data_in_width": 8, "data_in_frac_width": 5, 
                                             "bias_width": 8, "bias_frac_width": 5}
-        self.quant_config["unet_codebook"] = {"name": "integer", "weight_width": 8, "weight_frac_width": 5,
-                                            "data_in_width": 8, "data_in_frac_width": 5, 
-                                            "bias_width": 8, "bias_frac_width": 5}
+
         """
 
 
