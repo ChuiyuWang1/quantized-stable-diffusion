@@ -2,3 +2,4 @@
 samples/
 src/
 scripts/evaluation.py
+*.pyc

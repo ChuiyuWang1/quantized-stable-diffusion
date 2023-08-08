@@ -35,7 +35,7 @@ model:
         quant_config: 
           target: ldm.modules.quant_config.CelebA256UNetQuantConfig
           params: 
-            bitwidth: 16
+            bitwidth: 8
     first_stage_config:
       target: ldm.models.autoencoder.VQModelInterface
       params:
