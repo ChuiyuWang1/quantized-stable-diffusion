@@ -2,4 +2,4 @@
 samples/
 src/
 scripts/evaluation.py
-*.pyc
+*.cpython-38.pyc
