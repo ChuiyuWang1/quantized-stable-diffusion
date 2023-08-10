@@ -111,7 +111,7 @@ class CelebA256UNetQuantConfig():
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 9}
         # Begin ResBlock[0]
-        self.quant_config["silu_res_in"] = [{"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"] = [{"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 4}]
         self.quant_config["resblock_in"] = [{"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -121,7 +121,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"] = [{"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9}]
-        self.quant_config["silu_res_out"] = [{"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"] = [{"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 2}]
         self.quant_config["resblock_out"] = [{"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -129,7 +129,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_skip"] = [None]
 
         # Begin Resblock[1]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -139,7 +139,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 4})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -152,7 +152,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 10}]
         
         # Begin ResBlock[2]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -162,7 +162,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 6,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 8})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -180,7 +180,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 9}]
         
         # Begin ResBlock[3]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 6,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -190,7 +190,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -211,7 +211,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 9})
         
         # Begin ResBlock[4]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 2})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 2, 
@@ -221,7 +221,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -239,7 +239,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 10})
         
         # Begin ResBlock[5]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -249,7 +249,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -270,7 +270,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 9})
         
         # Begin ResBlock[6]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 4})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -280,7 +280,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 10})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -298,7 +298,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 9})
         
         # Begin ResBlock[7]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -308,7 +308,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 8})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -325,7 +325,7 @@ class CelebA256UNetQuantConfig():
         
         # Begin MiddleBlock
         # Begin ResBlock[8]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -335,7 +335,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 8})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -351,7 +351,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 10})
         
         # Begin ResBlock[9]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -361,7 +361,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 8})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -370,7 +370,7 @@ class CelebA256UNetQuantConfig():
 
         # Begin OutBlock
         # Begin ResBlock[10]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -380,7 +380,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -398,7 +398,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 10})
         
         # Begin ResBlock[11]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 1})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 1, 
@@ -408,7 +408,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -426,7 +426,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 10})
         
         # Begin ResBlock[12]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -436,7 +436,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 7})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -459,7 +459,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 8}]
         
         # Begin ResBlock[13]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -469,7 +469,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 10})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -487,7 +487,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 10})
         
         # Begin ResBlock[14]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -497,7 +497,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -515,7 +515,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 9})
 
         # Begin ResBlock[15]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -525,7 +525,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -548,7 +548,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 8})
         
         # Begin ResBlock[16]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -558,7 +558,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -576,7 +576,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 10})
         
         # Begin ResBlock[17]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -586,7 +586,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 8})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -604,7 +604,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 10})
         
         # Begin ResBlock[18]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 6,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -614,7 +614,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -637,7 +637,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 8})
         
         # Begin ResBlock[19]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -647,7 +647,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -657,7 +657,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 9})
         
         # Begin ResBlock[20]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 6,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -667,7 +667,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 10})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 6,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
@@ -677,7 +677,7 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 10})
         
         # Begin ResBlock[21]
-        self.quant_config["silu_res_in"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_in"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_in"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 6,
                                             "data_in_width": 8, "data_in_frac_width": 3,
@@ -687,7 +687,7 @@ class CelebA256UNetQuantConfig():
         self.quant_config["resblock_emb"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 7,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
-        self.quant_config["silu_res_out"].append({"bypass": True, "name": "integer",
+        self.quant_config["silu_res_out"].append({"bypass": False, "name": "integer",
                                            "data_in_width": 8, "data_in_frac_width": 3})
         self.quant_config["resblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 6,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
@@ -697,8 +697,8 @@ class CelebA256UNetQuantConfig():
                                             "bias_width": 8, "bias_frac_width": 10})
         
         # Begin unet.out
-        self.quant_config["silu_unet_out"] = {"bypass": True, "name": "integer",
-                                           "data_in_width": 8, "data_in_frac_width": 3}
+        self.quant_config["silu_unet_out"] = {"bypass": False, "name": "integer",
+                                           "data_in_width": 8, "data_in_frac_width": 4}
         self.quant_config["unet_out"] = {"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 5, 
                                             "bias_width": 8, "bias_frac_width": 13}
