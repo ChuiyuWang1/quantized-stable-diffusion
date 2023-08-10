@@ -305,7 +305,7 @@ class SiLUInteger(_SiLUBase):
         # establish quantizers
         x_width, x_frac_width = config["data_in_width"], config["data_in_frac_width"]
         self.x_quantizer = partial(
-            integer_quantizer, width=x_width, frac_width=x_frac_width, is_signed=False
+            integer_quantizer, width=x_width, frac_width=x_frac_width, is_signed=True
         )
         self.config = config
         self.x_width = x_width

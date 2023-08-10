@@ -17,7 +17,7 @@ from ldm.modules.diffusionmodules_quant.util import (
     normalization,
     timestep_embedding,
 )
-from ldm.modules.attention import SpatialTransformer
+from ldm.modules.diffusionmodules_quant.attention import SpatialTransformer
 from ldm.chop.models.manual.quant_utils import *
 from ldm.util import instantiate_from_config
 
