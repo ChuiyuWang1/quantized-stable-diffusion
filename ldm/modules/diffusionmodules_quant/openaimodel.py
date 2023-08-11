@@ -352,7 +352,7 @@ class AttentionBlock(nn.Module):
             self.attention = QKVAttention(self.num_heads)
         else:
             # split heads before split qkv
-            self.attention = QKVAttentionLegacy(self.num_heads)
+            self.attention = QKVAttentionLegacy(self.num_heads, quant_config, layer_idx)
 
         self.proj_out = zero_module(
             # conv_nd(1, channels, channels, 1)
@@ -399,9 +399,11 @@ class QKVAttentionLegacy(nn.Module):
     A module which performs QKV attention. Matches legacy QKVAttention + input/ouput heads shaping
     """
 
-    def __init__(self, n_heads):
+    def __init__(self, n_heads, quant_config, layer_idx):
         super().__init__()
         self.n_heads = n_heads
+        self.quant_config = quant_config
+        self.layer_idx = layer_idx
 
     def forward(self, qkv):
         """
@@ -413,12 +415,16 @@ class QKVAttentionLegacy(nn.Module):
         assert width % (3 * self.n_heads) == 0
         ch = width // (3 * self.n_heads)
         q, k, v = qkv.reshape(bs * self.n_heads, ch * 3, length).split(ch, dim=1)
-        scale = 1 / math.sqrt(math.sqrt(ch))
-        weight = th.einsum(
-            "bct,bcs->bts", q * scale, k * scale
-        )  # More stable with f16 than dividing afterwards
+        # scale = 1 / math.sqrt(math.sqrt(ch))
+        matmul_q0 = get_quantized_func("matmul", self.quant_config.get("matmul_0")[self.layer_idx])
+        # weight = th.einsum(
+        #     "bct,bcs->bts", q * scale, k * scale
+        weight = matmul_q0(th.permute(q, (0, 2, 1)), k, config=self.quant_config.get("matmul_0")[self.layer_idx]) / math.sqrt(ch)
+        # )  # More stable with f16 than dividing afterwards
         weight = th.softmax(weight.float(), dim=-1).type(weight.dtype)
-        a = th.einsum("bts,bcs->bct", weight, v)
+        matmul_q1 = get_quantized_func("matmul", self.quant_config.get("matmul_1")[self.layer_idx])
+        # a = th.einsum("bts,bcs->bct", weight, v)
+        a = matmul_q1(v, th.permute(weight, (0, 2, 1)), config=self.quant_config.get("matmul_1")[self.layer_idx])
         return a.reshape(bs, -1, length)
 
     @staticmethod

@@ -27,6 +27,8 @@ class CelebA256UNetQuantConfig():
             "resblock_out",
             "resblock_skip",
             "attblock_qkv",
+            "matmul_0",
+            "matmul_1",
             "attblock_out",
             "temb_1",
             "silu_temb",
@@ -175,6 +177,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"] = [{"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 7}]
+        self.quant_config["matmul_0"] = [{"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 3,
+                                            "weight_width": 8, "weight_frac_width": 3}]
+        self.quant_config["matmul_1"] = [{"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 7}]
         self.quant_config["attblock_out"] = [{"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 9}]
@@ -201,6 +207,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 7})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 3,
+                                            "weight_width": 8, "weight_frac_width": 3})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 8})
@@ -234,6 +244,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 8})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 4})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 5,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 10})
@@ -260,6 +274,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 8})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 3})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 10})
@@ -293,6 +311,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 9})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 4})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 9})
@@ -319,6 +341,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 9})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 4})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 5,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 11})
@@ -346,6 +372,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 9})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 4})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 10})
@@ -393,6 +423,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 10})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 4})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 5,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 10})
@@ -421,6 +455,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 9})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 4})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 5,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 5, 
                                             "bias_width": 8, "bias_frac_width": 10})
@@ -449,6 +487,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 9})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 4})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 5,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 9,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 10})
@@ -482,6 +524,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 8})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 3,
+                                            "weight_width": 8, "weight_frac_width": 3})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 10})
@@ -510,6 +556,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 8})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 3,
+                                            "weight_width": 8, "weight_frac_width": 3})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
@@ -538,6 +588,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 8})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 3})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 4,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 10})
@@ -571,6 +625,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 8})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 3,
+                                            "weight_width": 8, "weight_frac_width": 3})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 3,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 10})
@@ -599,6 +657,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 8})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 3,
+                                            "weight_width": 8, "weight_frac_width": 3})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 3,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 10})
@@ -627,6 +689,10 @@ class CelebA256UNetQuantConfig():
         self.quant_config["attblock_qkv"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 4, 
                                             "bias_width": 8, "bias_frac_width": 8})
+        self.quant_config["matmul_0"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 3,
+                                            "weight_width": 8, "weight_frac_width": 3})
+        self.quant_config["matmul_1"].append({"bypass": False, "name": "integer", "data_in_width": 8, "data_in_frac_width": 3,
+                                            "weight_width": 8, "weight_frac_width": 7})
         self.quant_config["attblock_out"].append({"bypass": False, "name": "integer", "weight_width": 8, "weight_frac_width": 8,
                                             "data_in_width": 8, "data_in_frac_width": 3, 
                                             "bias_width": 8, "bias_frac_width": 9})
