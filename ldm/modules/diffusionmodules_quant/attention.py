@@ -36,29 +36,36 @@ def init_(tensor):
 
 # feedforward
 class GEGLU(nn.Module):
-    def __init__(self, dim_in, dim_out):
+    def __init__(self, dim_in, dim_out, quant_config=None, layer_idx=-1):
         super().__init__()
-        self.proj = nn.Linear(dim_in, dim_out * 2)
+        # self.proj = nn.Linear(dim_in, dim_out * 2)
+        self.proj = get_quantized_cls("linear", quant_config.get("ff_proj")[layer_idx])(dim_in, dim_out * 2,
+                                                                                config=quant_config.get("ff_proj")[layer_idx])
+        self.gelu_config = quant_config.get("ff_gelu")[layer_idx]
 
     def forward(self, x):
         x, gate = self.proj(x).chunk(2, dim=-1)
-        return x * F.gelu(gate)
+        # return x * F.gelu(gate)
+        gelu_q = get_quantized_func("gelu", self.gelu_config)
+        return x * gelu_q(gate)
+
 
 
 class FeedForward(nn.Module):
-    def __init__(self, dim, dim_out=None, mult=4, glu=False, dropout=0.):
+    def __init__(self, dim, dim_out=None, mult=4, glu=False, dropout=0., quant_config=None, layer_idx=-1):
         super().__init__()
         inner_dim = int(dim * mult)
         dim_out = default(dim_out, dim)
         project_in = nn.Sequential(
             nn.Linear(dim, inner_dim),
             nn.GELU()
-        ) if not glu else GEGLU(dim, inner_dim)
+        ) if not glu else GEGLU(dim, inner_dim, quant_config, layer_idx)
 
         self.net = nn.Sequential(
             project_in,
             nn.Dropout(dropout),
-            nn.Linear(inner_dim, dim_out)
+            # nn.Linear(inner_dim, dim_out)
+            get_quantized_cls("linear", quant_config.get("ff_out")[layer_idx])(inner_dim, dim_out, config=quant_config.get("ff_out")[layer_idx])
         )
 
     def forward(self, x):
@@ -151,20 +158,33 @@ class SpatialSelfAttention(nn.Module):
 
 
 class CrossAttention(nn.Module):
-    def __init__(self, query_dim, context_dim=None, heads=8, dim_head=64, dropout=0.):
+    def __init__(self, query_dim, context_dim=None, heads=8, dim_head=64, dropout=0., quant_config=None, layer_idx=-1, c_idx=0):
         super().__init__()
         inner_dim = dim_head * heads
         context_dim = default(context_dim, query_dim)
 
         self.scale = dim_head ** -0.5
         self.heads = heads
+        self.quant_config=quant_config
+        self.layer_idx = layer_idx
 
-        self.to_q = nn.Linear(query_dim, inner_dim, bias=False)
-        self.to_k = nn.Linear(context_dim, inner_dim, bias=False)
-        self.to_v = nn.Linear(context_dim, inner_dim, bias=False)
+        postfix = '_' + str(c_idx)
+        self.postfix = postfix
+
+        # self.to_q = nn.Linear(query_dim, inner_dim, bias=False)
+        self.to_q = get_quantized_cls("linear", quant_config.get("to_q"+postfix)[layer_idx])(query_dim, inner_dim, bias=False,
+                                                                                 config=quant_config.get("to_q"+postfix)[layer_idx])
+        # self.to_k = nn.Linear(context_dim, inner_dim, bias=False)
+        self.to_k = get_quantized_cls("linear", quant_config.get("to_k"+postfix)[layer_idx])(context_dim, inner_dim, bias=False,
+                                                                                 config=quant_config.get("to_k"+postfix)[layer_idx])
+        # self.to_v = nn.Linear(context_dim, inner_dim, bias=False)
+        self.to_v = get_quantized_cls("linear", quant_config.get("to_v"+postfix)[layer_idx])(context_dim, inner_dim, bias=False,
+                                                                                 config=quant_config.get("ro_v"+postfix)[layer_idx])
 
         self.to_out = nn.Sequential(
-            nn.Linear(inner_dim, query_dim),
+            # nn.Linear(inner_dim, query_dim),
+            get_quantized_cls("linear", quant_config.get("to_out"+postfix)[layer_idx])(inner_dim, query_dim,
+                                                                         config=quant_config.get("to_out"+postfix)[layer_idx]),
             nn.Dropout(dropout)
         )
 
@@ -178,7 +198,9 @@ class CrossAttention(nn.Module):
 
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> (b h) n d', h=h), (q, k, v))
 
-        sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
+        matmul_q0 = get_quantized_func("matmul", self.quant_config.get("matmul_0"+self.postfix)[self.layer_idx])
+        # sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
+        sim = matmul_q0(q, torch.permute(k, (0,2,1)), config=self.quant_config.get("matmul_0"+self.postfix)[self.layer_idx])
 
         if exists(mask):
             mask = rearrange(mask, 'b ... -> b (...)')
@@ -189,18 +211,21 @@ class CrossAttention(nn.Module):
         # attention, what we cannot get enough of
         attn = sim.softmax(dim=-1)
 
-        out = einsum('b i j, b j d -> b i d', attn, v)
+        matmul_q1 = get_quantized_func("matmul", self.quant_config.get("matmul_1"+self.postfix)[self.layer_idx])
+        # out = einsum('b i j, b j d -> b i d', attn, v)
+        out = matmul_q1(attn, v, config=self.quant_config.get("matmul_1"+self.postfix)[self.layer_idx])
         out = rearrange(out, '(b h) n d -> b n (h d)', h=h)
         return self.to_out(out)
 
 
 class BasicTransformerBlock(nn.Module):
-    def __init__(self, dim, n_heads, d_head, dropout=0., context_dim=None, gated_ff=True, checkpoint=True):
+    def __init__(self, dim, n_heads, d_head, dropout=0., context_dim=None, gated_ff=True, checkpoint=True, quant_config=None, layer_idx=-1):
         super().__init__()
-        self.attn1 = CrossAttention(query_dim=dim, heads=n_heads, dim_head=d_head, dropout=dropout)  # is a self-attention
-        self.ff = FeedForward(dim, dropout=dropout, glu=gated_ff)
+        self.attn1 = CrossAttention(query_dim=dim, heads=n_heads, dim_head=d_head, dropout=dropout,
+                                    quant_config=quant_config, layer_idx=layer_idx, c_idx=0)  # is a self-attention
+        self.ff = FeedForward(dim, dropout=dropout, glu=gated_ff, quant_config=quant_config, layer_idx=layer_idx)
         self.attn2 = CrossAttention(query_dim=dim, context_dim=context_dim,
-                                    heads=n_heads, dim_head=d_head, dropout=dropout)  # is self-attn if context is none
+                                    heads=n_heads, dim_head=d_head, dropout=dropout, quant_config=quant_config, layer_idx=layer_idx, c_idx=1)  # is self-attn if context is none
         self.norm1 = nn.LayerNorm(dim)
         self.norm2 = nn.LayerNorm(dim)
         self.norm3 = nn.LayerNorm(dim)
@@ -225,28 +250,32 @@ class SpatialTransformer(nn.Module):
     Finally, reshape to image
     """
     def __init__(self, in_channels, n_heads, d_head,
-                 depth=1, dropout=0., context_dim=None):
+                 depth=1, dropout=0., context_dim=None, quant_config=None, layer_idx=-1):
         super().__init__()
         self.in_channels = in_channels
         inner_dim = n_heads * d_head
         self.norm = Normalize(in_channels)
 
-        self.proj_in = nn.Conv2d(in_channels,
+        #self.proj_in = nn.Conv2d(in_channels,
+        self.proj_in = get_quantized_cls("conv2d", quant_config.get("proj_in")[layer_idx])(in_channels,
                                  inner_dim,
                                  kernel_size=1,
                                  stride=1,
-                                 padding=0)
+                                 padding=0,
+                                 config=quant_config.get("proj_in")[layer_idx])
 
         self.transformer_blocks = nn.ModuleList(
             [BasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim)
                 for d in range(depth)]
         )
 
-        self.proj_out = zero_module(nn.Conv2d(inner_dim,
+        # self.proj_out = zero_module(nn.Conv2d(inner_dim,
+        self.proj_out = zero_module(get_quantized_cls("conv2d", quant_config.get("proj_out")[layer_idx])(in_channels,
                                               in_channels,
                                               kernel_size=1,
                                               stride=1,
-                                              padding=0))
+                                              padding=0,
+                                              config=quant_config.get("proj_out")[layer_idx]))
 
     def forward(self, x, context=None):
         # note: if no context is given, cross-attention defaults to self-attention

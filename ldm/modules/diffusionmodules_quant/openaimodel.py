@@ -695,7 +695,8 @@ class UNetModel(nn.Module):
                 quant_config=quant_config,
                 layer_idx=attblock_idx,
             ) if not use_spatial_transformer else SpatialTransformer(
-                            ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim
+                            ch, num_heads, dim_head, depth=transformer_depth, context_dim=context_dim, 
+                            quant_config=quant_config, layer_idx=attblock_idx,
                         ),
             ResBlock(
                 ch,

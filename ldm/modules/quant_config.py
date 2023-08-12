@@ -782,7 +782,7 @@ class CelebA256UNetQuantConfig():
 
 
 class ImageNet256UNetQuantConfig():
-    def __init__():
+    def __init__(self, bitwidth=8):
         self.quant_config = {}
         self.config_keys = [
             "attpool_qkf", 

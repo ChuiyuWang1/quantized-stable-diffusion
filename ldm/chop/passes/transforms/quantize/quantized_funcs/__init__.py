@@ -56,6 +56,10 @@ from .relu import (
     relu_minifloat_ieee,
     relu_binary,
 )
+from .gelu import (
+    gelu_integer,
+    gelu_block_fp,
+)
 
 quantized_func_map = {
     "add_block_minifloat": add_block_minifloat,
@@ -106,4 +110,6 @@ quantized_func_map = {
     "relu_block_fp": relu_block_fp,
     "relu_block_log": relu_block_log,
     "relu_binary": relu_binary,
+    "gelu_integer": gelu_integer,
+    "gelu_blockfp": gelu_block_fp,
 }
