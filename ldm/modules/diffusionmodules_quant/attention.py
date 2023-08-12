@@ -179,7 +179,7 @@ class CrossAttention(nn.Module):
                                                                                  config=quant_config.get("to_k"+postfix)[layer_idx])
         # self.to_v = nn.Linear(context_dim, inner_dim, bias=False)
         self.to_v = get_quantized_cls("linear", quant_config.get("to_v"+postfix)[layer_idx])(context_dim, inner_dim, bias=False,
-                                                                                 config=quant_config.get("ro_v"+postfix)[layer_idx])
+                                                                                 config=quant_config.get("to_v"+postfix)[layer_idx])
 
         self.to_out = nn.Sequential(
             # nn.Linear(inner_dim, query_dim),
