@@ -47,7 +47,7 @@ class GEGLU(nn.Module):
         x, gate = self.proj(x).chunk(2, dim=-1)
         # return x * F.gelu(gate)
         gelu_q = get_quantized_func("gelu", self.gelu_config)
-        return x * gelu_q(gate)
+        return x * gelu_q(gate, config=self.gelu_config)
 
 
 
