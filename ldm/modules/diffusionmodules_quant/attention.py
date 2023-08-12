@@ -265,7 +265,7 @@ class SpatialTransformer(nn.Module):
                                  config=quant_config.get("proj_in")[layer_idx])
 
         self.transformer_blocks = nn.ModuleList(
-            [BasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim)
+            [BasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim, quant_config=quant_config, layer_idx=layer_idx)
                 for d in range(depth)]
         )
 
