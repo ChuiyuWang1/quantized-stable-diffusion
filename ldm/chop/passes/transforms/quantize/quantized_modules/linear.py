@@ -85,7 +85,10 @@ class LinearInteger(_LinearBase):
         w_width, w_frac_width = config["weight_width"], config["weight_frac_width"]
         x_width, x_frac_width = config["data_in_width"], config["data_in_frac_width"]
         # check bias quantizer, if not, use weight quantizer
-        b_width, b_frac_width = config["bias_width"], config["bias_frac_width"]
+        if self.bias is not None:
+            b_width, b_frac_width = config["bias_width"], config["bias_frac_width"]
+        else:
+            b_width, b_frac_width = None, None
         self.w_quantizer = partial(
             integer_quantizer, width=w_width, frac_width=w_frac_width
         )
@@ -94,7 +97,7 @@ class LinearInteger(_LinearBase):
         )
         self.b_quantizer = partial(
             integer_quantizer, width=b_width, frac_width=b_frac_width
-        )
+        ) if self.bias is not None else None
 
     # def get_output_bitwidth(self):
     #     config = self.config
