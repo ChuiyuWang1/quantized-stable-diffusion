@@ -200,7 +200,7 @@ class CrossAttention(nn.Module):
 
         matmul_q0 = get_quantized_func("matmul", self.quant_config.get("matmul_0"+self.postfix)[self.layer_idx])
         # sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
-        sim = matmul_q0(q, torch.permute(k, (0,2,1)), config=self.quant_config.get("matmul_0"+self.postfix)[self.layer_idx])
+        sim = matmul_q0(q, torch.permute(k, (0,2,1)), config=self.quant_config.get("matmul_0"+self.postfix)[self.layer_idx]) * self.scale
 
         if exists(mask):
             mask = rearrange(mask, 'b ... -> b (...)')
