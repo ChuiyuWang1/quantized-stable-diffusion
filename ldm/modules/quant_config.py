@@ -22,8 +22,10 @@ def assign_search(trial, config, path=[]):
         elif key in ["data_in_width", "weight_width", "bias_width"]:
             if len(new_path) > 0:
                 name = "_".join(str(p) for p in new_path)
+                default_value = config[key]
                 trial_value = trial.suggest_int(name, -6, 24)
                 config[key] += trial_value
+                new_value = config[key]
                 if key == "data_in_width":
                     config["data_in_frac_width"] += trial_value
                 elif key == "weight_width":
@@ -1299,7 +1301,7 @@ class ImageNet256UNetQuantConfig(QuantConfigBase):
 
         if trial is not None: 
             assign_search(trial, self.quant_config)
-            
+
         print("Loaded quantization config.")
     
     def get(self, item: str) -> Dict:
