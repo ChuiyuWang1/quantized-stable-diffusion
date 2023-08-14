@@ -384,15 +384,15 @@ def get_parser():
     return parser
 """
 
-def load_model_from_config(config, sd):
-    model = instantiate_from_config(config)
+def load_model_from_config(config, sd, trial=None):
+    model = instantiate_from_config(config, trial)
     model.load_state_dict(sd,strict=False)
     model.cuda()
     model.eval()
     return model
 
 
-def load_model(config, ckpt, gpu, eval_mode):
+def load_model(config, ckpt, gpu, eval_mode, trial=None):
     if ckpt:
         print(f"Loading model from {ckpt}")
         pl_sd = torch.load(ckpt, map_location="cpu")
@@ -404,7 +404,7 @@ def load_model(config, ckpt, gpu, eval_mode):
         pl_sd = {"state_dict": None}
         global_step = None
     model = load_model_from_config(config.model,
-                                   pl_sd["state_dict"])
+                                   pl_sd["state_dict"], trial=trial)
 
     return model, global_step
 
@@ -453,8 +453,6 @@ def sampling_main(
     # config = OmegaConf.merge(*configs, cli)
     config = OmegaConf.merge(*configs)
 
-    config.model.params.unet_config.params.quant_config.params["optuna_trial"] = trial
-
     gpu = True
     # gpu = False
     eval_mode = True
@@ -467,7 +465,7 @@ def sampling_main(
 
     print(config)
 
-    model, global_step = load_model(config, ckpt, gpu, eval_mode)
+    model, global_step = load_model(config, ckpt, gpu, eval_mode, trial=trial)
     if not global_step:
         global_step = 0
     print(f"global step: {global_step}")
