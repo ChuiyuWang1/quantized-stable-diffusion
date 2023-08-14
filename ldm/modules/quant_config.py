@@ -12,6 +12,8 @@ def add_int_recursive(item, add_value):
         return item
     
 def assign_search(trial, config, path=[]):
+    if config == None:
+        return
     for key, value in config.items():
         new_path = path + [key]
         if isinstance(value, dict):
