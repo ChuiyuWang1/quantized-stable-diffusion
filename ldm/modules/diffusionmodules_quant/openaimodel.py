@@ -523,6 +523,7 @@ class UNetModel(nn.Module):
         context_dim=None,                 # custom transformer support
         n_embed=None,                     # custom support for prediction of discrete ids into codebook of first stage vq model
         legacy=True,
+        trial=None,
     ):
         super().__init__()
         if use_spatial_transformer:
@@ -560,7 +561,7 @@ class UNetModel(nn.Module):
         self.num_heads_upsample = num_heads_upsample
         self.predict_codebook_ids = n_embed is not None
         print(quant_config)
-        quant_config = instantiate_from_config(quant_config)
+        quant_config = instantiate_from_config(quant_config, trial=trial)
 
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(

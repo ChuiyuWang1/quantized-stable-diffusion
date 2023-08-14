@@ -71,6 +71,7 @@ class DDPM(pl.LightningModule):
                  use_positional_encodings=False,
                  learn_logvar=False,
                  logvar_init=0.,
+                 trial=None,
                  ):
         super().__init__()
         assert parameterization in ["eps", "x0"], 'currently only supporting "eps" and "x0"'
@@ -83,7 +84,7 @@ class DDPM(pl.LightningModule):
         self.image_size = image_size  # try conv?
         self.channels = channels
         self.use_positional_encodings = use_positional_encodings
-        self.model = DiffusionWrapper(unet_config, conditioning_key)
+        self.model = DiffusionWrapper(unet_config, conditioning_key, trial=trial)
         count_params(self.model, verbose=True)
         self.use_ema = use_ema
         if self.use_ema:
@@ -1393,9 +1394,9 @@ class LatentDiffusion(DDPM):
 
 
 class DiffusionWrapper(pl.LightningModule):
-    def __init__(self, diff_model_config, conditioning_key):
+    def __init__(self, diff_model_config, conditioning_key, trial=None):
         super().__init__()
-        self.diffusion_model = instantiate_from_config(diff_model_config)
+        self.diffusion_model = instantiate_from_config(diff_model_config, trial=trial)
         self.conditioning_key = conditioning_key
         assert self.conditioning_key in [None, 'concat', 'crossattn', 'hybrid', 'adm']
 
