@@ -1,5 +1,5 @@
 import optuna
-from scripts.sample_eval import *
+from scripts.sample_eval import sampling_main, evaluation
 
 def objective(trial):
     dataset = "celebahq"
