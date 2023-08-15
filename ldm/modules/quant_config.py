@@ -12,7 +12,7 @@ def add_int_recursive(item, add_value):
         return item
     
 def assign_search(trial, config, path=[]):
-    if config == None:
+    if config is None:
         return
     for key, value in config.items():
         new_path = path + [key]
@@ -25,7 +25,7 @@ def assign_search(trial, config, path=[]):
             if len(new_path) > 0:
                 name = "_".join(str(p) for p in new_path)
                 default_value = config[key]
-                trial_value = trial.suggest_int(name, -6, 24)
+                trial_value = trial.suggest_categorical(name, [-4, 0, 8, 24])
                 config[key] += trial_value
                 new_value = config[key]
                 if key == "data_in_width":
@@ -34,7 +34,7 @@ def assign_search(trial, config, path=[]):
                     config["weight_frac_width"] += trial_value
                 elif key == "bias_width":
                     config["bias_width"] += trial_value
-                print(f"Modified {key} at path {new_path} from {default_value} to {new_value}")
+                # print(f"Modified {key} at path {new_path} from {default_value} to {new_value}")
     
 class QuantConfigBase():
     def __init__(self) -> None:
