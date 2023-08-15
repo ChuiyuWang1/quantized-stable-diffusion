@@ -35,13 +35,28 @@ def assign_search(trial, config, path=[]):
                 elif key == "bias_width":
                     config["bias_width"] += trial_value
                 # print(f"Modified {key} at path {new_path} from {default_value} to {new_value}")
+
+def assign_vanilla_int(quant_config):
+    if quant_config is None:
+        return
+    for key, value in quant_config.items():
+        if isinstance(value, dict):
+            assign_vanilla_int(value)
+        elif isinstance(value, list):
+            for item in value:
+                assign_vanilla_int(item)
+        elif key in ["data_in_width", "weight_width", "bias_width"]:
+            quant_config[key] = 8
+        elif key in ["data_in_frac_width", "weight_frac_width", "bias_width"]:
+            quant_config[key] = 5
+
     
 class QuantConfigBase():
     def __init__(self) -> None:
         self.quant_config = {}
 
 class CelebA256UNetQuantConfig(QuantConfigBase):
-    def __init__(self, bitwidth=8, trial=None) -> None:
+    def __init__(self, bitwidth=8, trial=None, vanilla_int = False) -> None:
         super().__init__()
         self.config_keys = [
             "attpool_qkf", 
@@ -804,6 +819,10 @@ class CelebA256UNetQuantConfig(QuantConfigBase):
 
         if trial is not None:
             assign_search(trial, self.quant_config)
+        
+        if vanilla_int:
+            print("All tensors: interger quantisation with bitwidth 8 and frac width 5")
+            assign_vanilla_int(self.quant_config)
 
         print("Loaded quantization config.")
     
@@ -815,7 +834,7 @@ class CelebA256UNetQuantConfig(QuantConfigBase):
 
 
 class ImageNet256UNetQuantConfig(QuantConfigBase):
-    def __init__(self, bitwidth=8, trial=None):
+    def __init__(self, bitwidth=8, trial=None, vanilla_int = False):
         super().__init__()
         
         self.config_keys = [
@@ -1303,6 +1322,10 @@ class ImageNet256UNetQuantConfig(QuantConfigBase):
 
         if trial is not None: 
             assign_search(trial, self.quant_config)
+        
+        if vanilla_int:
+            print("All tensors: interger quantisation with bitwidth 8 and frac width 5")
+            assign_vanilla_int(self.quant_config)
 
         print("Loaded quantization config.")
     
