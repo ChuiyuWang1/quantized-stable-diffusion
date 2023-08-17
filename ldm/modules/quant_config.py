@@ -25,7 +25,7 @@ def assign_search(trial, config, path=[]):
             if len(new_path) > 0:
                 name = "_".join(str(p) for p in new_path)
                 default_value = config[key]
-                trial_value = trial.suggest_categorical(name, [-4, 0, 8, 24])
+                trial_value = trial.suggest_categorical(name, [-4, -2, 0, 2, 4, 8])
                 config[key] += trial_value
                 new_value = config[key]
                 if key == "data_in_width":
