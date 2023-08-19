@@ -50,7 +50,7 @@ def assign_vanilla_int(quant_config):
         elif key in ["data_in_frac_width", "weight_frac_width", "bias_width"]:
             quant_config[key] = 5
 
-def assign_bfp_search(config, trial, path=[]):
+def assign_bfp_search(trial, config, path=[]):
     if config is None:
         return
     for key, value in config.items():
