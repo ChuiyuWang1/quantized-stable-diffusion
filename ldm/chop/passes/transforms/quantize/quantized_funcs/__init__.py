@@ -111,5 +111,5 @@ quantized_func_map = {
     "relu_block_log": relu_block_log,
     "relu_binary": relu_binary,
     "gelu_integer": gelu_integer,
-    "gelu_blockfp": gelu_block_fp,
+    "gelu_block_fp": gelu_block_fp,
 }

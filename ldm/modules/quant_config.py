@@ -50,13 +50,41 @@ def assign_vanilla_int(quant_config):
         elif key in ["data_in_frac_width", "weight_frac_width", "bias_width"]:
             quant_config[key] = 5
 
+def assign_bfp_search(config, trial, path=[]):
+    if config is None:
+        return
+    for key, value in config.items():
+        new_path = path + [key]
+        if isinstance(value, dict):
+            assign_bfp_search(trial, value, new_path)
+        elif isinstance(value, list):
+            for i, item in enumerate(value):
+                assign_bfp_search(trial, item, new_path + [i])
+        elif key in ["data_in_width", "weight_width", "bias_width"]:
+            if len(new_path) > 0:
+                name = "_".join(str(p) for p in new_path)
+                trial_value = trial.suggest_categorical(name, [4,6,8,10])
+                config[key] = trial_value
+                if key == "data_in_width":
+                    config["data_in_exponent_width"] = 8
+                    config["data_in_block_size"] = 16
+                    config["data_in_exponent_bias"] = None
+                elif key == "weight_width":
+                    config["weight_exponent_width"] = 8
+                    config["weight_block_size"] = 16
+                    config["weight_exponent_bias"] = None
+                elif key == "bias_width":
+                    config["bias_exponent_width"] = 8
+                    config["bias_block_size"] = 16
+                    config["bias_exponent_bias"] = None
+
     
 class QuantConfigBase():
     def __init__(self) -> None:
         self.quant_config = {}
 
 class CelebA256UNetQuantConfig(QuantConfigBase):
-    def __init__(self, bitwidth=8, trial=None, vanilla_int = False) -> None:
+    def __init__(self, bitwidth=8, trial=None, vanilla_int = False, block_fp=False) -> None:
         super().__init__()
         self.config_keys = [
             "attpool_qkf", 
@@ -818,7 +846,11 @@ class CelebA256UNetQuantConfig(QuantConfigBase):
         # print(self.quant_config)
 
         if trial is not None:
-            assign_search(trial, self.quant_config)
+            if block_fp:
+                assign_bfp_search(trial, self.quant_config)
+                print("Apply Block FP Quantisation")
+            else:
+                assign_search(trial, self.quant_config)
         
         if vanilla_int:
             print("All tensors: interger quantisation with bitwidth 8 and frac width 5")
@@ -834,7 +866,7 @@ class CelebA256UNetQuantConfig(QuantConfigBase):
 
 
 class ImageNet256UNetQuantConfig(QuantConfigBase):
-    def __init__(self, bitwidth=8, trial=None, vanilla_int = False):
+    def __init__(self, bitwidth=8, trial=None, vanilla_int = False, block_fp=False):
         super().__init__()
         
         self.config_keys = [
@@ -1321,7 +1353,11 @@ class ImageNet256UNetQuantConfig(QuantConfigBase):
         # print(self.quant_config)
 
         if trial is not None: 
-            assign_search(trial, self.quant_config)
+            if block_fp:
+                assign_bfp_search(trial, self.quant_config)
+                print("Apply Block FP Quantisation")
+            else:
+                assign_search(trial, self.quant_config)
         
         if vanilla_int:
             print("All tensors: interger quantisation with bitwidth 8 and frac width 5")

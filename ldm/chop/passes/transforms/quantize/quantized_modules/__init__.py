@@ -40,6 +40,7 @@ from .relu import (
     ReLUMinifloatIEEE,
     ReLUBinary,
     SiLUInteger,
+    SiLUBlockFP,
 )
 from .norm import (
     GroupNormInteger,
@@ -82,5 +83,6 @@ quantized_module_map = {
     "relu_block_fp": ReLUBlockFP,
     "relu_binary": ReLUBinary,
     "silu_integer": SiLUInteger,
+    "silu_block_fp": SiLUBlockFP,
     "groupnorm_integer": GroupNormInteger,
 }

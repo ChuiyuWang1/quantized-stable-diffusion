@@ -310,3 +310,39 @@ class SiLUInteger(_SiLUBase):
         self.config = config
         self.x_width = x_width
         self.x_frac_width = x_frac_width
+
+
+class SiLUBlockFP(_SiLUBase):
+    def __init__(self, inplace: bool = False, config: Dict = None):
+        super().__init__(inplace)
+        assert config is not None, "config is None!"
+        self.config = config
+        self.bypass = config.get("bypass", False)
+        if self.bypass:
+            return
+
+        x_width, x_exponent_width, x_exponent_bias, x_block_size = (
+            config["data_in_width"],
+            config["data_in_exponent_width"],
+            config["data_in_exponent_bias"],
+            config["data_in_block_size"],
+        )
+        self.x_quantizer = partial(
+            block_fp_quantizer,
+            width=x_width,
+            exponent_width=x_exponent_width,
+            exponent_bias=x_exponent_bias,
+            block_size=x_block_size,
+            skip_first_dim=True,
+        )
+
+    def forward(self, x: Tensor) -> Tensor:
+        if self.bypass:
+            return F.relu(x)
+        else:
+            x_shape = [i for i in x.shape]
+            if x.ndim > 2:
+                x = torch.flatten(x, 0, -3)
+            x = self.x_quantizer(x)
+            x = torch.reshape(x, x_shape)
+            return F.silu(x, self.inplace)

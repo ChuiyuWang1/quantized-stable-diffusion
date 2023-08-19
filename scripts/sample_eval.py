@@ -3,6 +3,7 @@ import torch
 import time
 import numpy as np
 import typing
+import shutil
 from tqdm import trange
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
@@ -411,6 +412,7 @@ def load_model(config, ckpt, gpu, eval_mode, trial=None):
 
 def sampling_main(
         trial,
+        quant_mode,
         resume: str,
         opt_logdir: str,
         eta: float = 1.0,
@@ -445,7 +447,13 @@ def sampling_main(
         logdir = resume.rstrip("/")
         ckpt = os.path.join(logdir, "model.ckpt")
 
-    base_configs = sorted(glob.glob(os.path.join(logdir, "config.yaml")))
+    if quant_mode == "integer":
+        base_configs = sorted(glob.glob(os.path.join(logdir, "config.yaml")))
+    elif quant_mode == "block_fp":
+        base_configs = sorted(glob.glob(os.path.join(logdir, "config_bfp.yaml")))
+    else:
+        raise NotImplementedError('Currently only integer and block_fp supported.')
+
     opt_base = base_configs
 
     configs = [OmegaConf.load(cfg) for cfg in opt_base]
@@ -522,4 +530,5 @@ def evaluation(
     generated_dataset = GeneratedImageDataset(root=imagedir)
     metrics = calculate_metrics(input1=generated_dataset, input2=real_dataset, cuda=True, fid=True, isc=True, prc=True)
     print(metrics)
+    shutil.rmtree(imagedir)
     return metrics
