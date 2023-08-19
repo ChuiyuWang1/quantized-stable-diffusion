@@ -77,6 +77,8 @@ def assign_bfp_search(trial, config, path=[]):
                     config["bias_exponent_width"] = 8
                     config["bias_block_size"] = 16
                     config["bias_exponent_bias"] = None
+        elif key == "name":
+            config[key] = "block_fp"
 
     
 class QuantConfigBase():
@@ -847,6 +849,41 @@ class CelebA256UNetQuantConfig(QuantConfigBase):
 
         if trial is not None:
             if block_fp:
+                for item in self.quant_config.values():
+                    if isinstance(item, list):
+                        for dict_i in item:
+                            if dict_i is not None:
+                                if "data_in_width" in dict_i.keys():
+                                    del dict_i["data_in_frac_width"]
+                                    dict_i["data_in_exponent_width"] = 8
+                                    dict_i["data_in_exponent_bias"] = None
+                                    dict_i["data_in_block_size"] = 16
+                                if "weight_width" in dict_i.keys():
+                                    del dict_i["weight_frac_width"]
+                                    dict_i["weight_exponent_width"] = 8
+                                    dict_i["weight_exponent_bias"] = None
+                                    dict_i["weight_block_size"] = 16
+                                if "bias_width" in dict_i.keys():
+                                    del dict_i["bias_frac_width"]
+                                    dict_i["bias_exponent_width"] = 8
+                                    dict_i["bias_exponent_bias"] = None
+                                    dict_i["bias_block_size"] = 16
+                    elif isinstance(item, dict):
+                        if "data_in_width" in dict_i.keys():
+                            del dict_i["data_in_frac_width"]
+                            dict_i["data_in_exponent_width"] = 8
+                            dict_i["data_in_exponent_bias"] = None
+                            dict_i["data_in_block_size"] = 16
+                        if "weight_width" in dict_i.keys():
+                            del dict_i["weight_frac_width"]
+                            dict_i["weight_exponent_width"] = 8
+                            dict_i["weight_exponent_bias"] = None
+                            dict_i["weight_block_size"] = 16
+                        if "bias_width" in dict_i.keys():
+                            del dict_i["bias_frac_width"]
+                            dict_i["bias_exponent_width"] = 8
+                            dict_i["bias_exponent_bias"] = None
+                            dict_i["bias_block_size"] = 16
                 assign_bfp_search(trial, self.quant_config)
                 print("Apply Block FP Quantisation")
             else:
