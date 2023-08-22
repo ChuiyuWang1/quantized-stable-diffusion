@@ -39,11 +39,23 @@ def _block_fp_quantize(
     )
 
     # fill zeros to avoid log2(0) = -inf
+    """
     if torch.all(per_block_max == 0):
         # all elements in zero-initialized bias can be 0 thus per_block_max is 0
         per_block_max = torch.ones_like(per_block_max)
     else:
         per_block_max[per_block_max == 0] = per_block_max[per_block_max != 0].min()
+    """
+    zero_indices = (per_block_max == 0)
+    non_zero_indices = ~zero_indices
+    min_abs_all = torch.min(per_block_max)
+    min_abs_value = torch.min(per_block_max[non_zero_indices].abs())
+
+    if min_abs_all == 0:
+        per_block_max[zero_indices] = 1
+    else:
+        per_block_max[zero_indices] = min_abs_value
+
     # minifloat_denorm_quantizer on each block over which a exponent is shared
     mantissa_bits = width - 1
     if exponent_bias in (None, "none", "None"):
