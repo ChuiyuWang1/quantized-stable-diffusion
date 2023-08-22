@@ -235,7 +235,7 @@ def _block_1d_bias(x: Tensor, block_shape: List[int]):
     pad_diff = _infer_padding_shape(x_shape, block_shape)
     padded_x = F.pad(x, pad_diff)
     padded_x_shape = torch.tensor(padded_x.shape, dtype=torch.int)
-    blocked_x = padded_x.reshape(padded_x_shape[0] // block_shape[0], block_shape[0])
+    blocked_x = padded_x.reshape(torch.div(padded_x_shape[0], block_shape[0], rounding_mode="floor"), block_shape[0])
     per_block_max = torch.abs(blocked_x).max(dim=1, keepdim=True)[0]
 
     return blocked_x, per_block_max, padded_x_shape, block_shape
@@ -274,7 +274,7 @@ def _block_2d_activation(x: Tensor, block_shape: List[int]):
     padded_x_shape = torch.tensor(padded_x.shape, dtype=torch.int)
     # [batch_size, hidden_size] -> [batch_size, num_blocks, block_size[-1]]
     blocked_x = padded_x.reshape(
-        x_shape[0], padded_x_shape[1] // block_shape[-1], block_shape[-1]
+        x_shape[0], torch.div(padded_x_shape[1], block_shape[-1], rounding_mode="floor"), block_shape[-1]
     )
     per_block_max = torch.abs(blocked_x).max(dim=2, keepdim=True)[0]
 
