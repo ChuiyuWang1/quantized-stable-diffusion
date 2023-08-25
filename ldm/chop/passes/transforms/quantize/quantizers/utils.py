@@ -307,14 +307,17 @@ def _block_2d_weight(x: Tensor, block_shape: List[int]):
     padded_x = F.pad(x, pad_diff)
     padded_x_shape = torch.tensor(padded_x.shape, dtype=torch.int)
 
-    padded_x = padded_x.unsqueeze(0).unsqueeze(0)
+    # padded_x = padded_x.unsqueeze(0).unsqueeze(0)
     # [1, 1, in_features, out_features] -> [1, block_size_0 * block_size_1, num_blocks]
+    """
     blocked_x = F.unfold(
         padded_x, kernel_size=block_shape, dilation=1, padding=0, stride=block_shape
     )
+    """
+    blocked_x = padded_x.transpose(0, 1).reshape(-1, block_shape[0]*block_shape[1]).transpose(0, 1)
 
     # [1, block_size_0 * block_size_1, num_blocks] -> [block_size_0 * block_size_1, num_blocks]
-    blocked_x = blocked_x.squeeze(0)
+    # blocked_x = blocked_x.squeeze(0)
     per_block_max = torch.abs(blocked_x).max(dim=0, keepdim=True)[0]
 
     return blocked_x, per_block_max, padded_x_shape, block_shape
@@ -327,6 +330,7 @@ def _unblock_to_2d_weight(
     [block_size_0 * block_size_1, num_blocks] -> [in_features, out_features]
     """
     # [block_size_0 * block_size_1, num_blocks] -> [1, padded_x_shape[0], padded_x_shape[1]]
+    """
     x = F.fold(
         blocked_x,
         output_size=padded_x_shape,  # [padded_in_features, padded_out_features]
@@ -335,8 +339,10 @@ def _unblock_to_2d_weight(
         padding=0,
         stride=block_shape,
     )
+    """
+    x = blocked_x.transpose(0, 1).reshape(padded_x_shape[1], padded_x_shape[0]).transpose(0, 1)
 
-    x = x.squeeze(0)
+    # x = x.squeeze(0)
     indexes = []
     for i in range(len(x_shape_before_blocking)):
         indexes.append(slice(None, x_shape_before_blocking[i]))
