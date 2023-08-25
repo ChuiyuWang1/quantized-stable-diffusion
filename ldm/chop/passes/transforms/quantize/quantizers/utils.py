@@ -370,7 +370,8 @@ def _block_3d_activation(x: Tensor, block_shape: List[int]):
         stride=block_shape[1:],
     )
     """
-    blocked_x = padded_x.reshape(block_shape[0], block_shape[1] * block_shape[2], -1)
+    padded_x = torch.permute(padded_x, (0,2,1))
+    blocked_x = padded_x.reshape(x_shape[0], -1, block_shape[1] * block_shape[2]).permute(0,2,1)
 
     per_block_max = torch.abs(blocked_x).max(dim=1, keepdim=True)[0]
 
@@ -391,8 +392,9 @@ def _unblock_to_3d_activation(
         stride=block_shape[1:],
     )
     """
+    x = torch.reshape(blocked_x.permute(0,2,1), (x_shape_before_blocking[0], padded_x_shape[1], padded_x_shape[2]))
+    x = torch.permute(x, (0,2,1))
     # x = x.squeeze(1)
-    x = torch.reshape(blocked_x, x_shape_before_blocking)
     indexes = []
     for i in range(len(x_shape_before_blocking)):
         indexes.append(slice(None, x_shape_before_blocking[i]))
