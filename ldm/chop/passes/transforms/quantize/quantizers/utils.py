@@ -359,8 +359,9 @@ def _block_3d_activation(x: Tensor, block_shape: List[int]):
     pad_diff = _infer_padding_shape(one_batch_shape, block_shape)
     padded_x = F.pad(x, pad_diff)
     padded_x_shape = torch.tensor(padded_x.shape, dtype=torch.int)
-    padded_x = padded_x.unsqueeze(1)
+    # padded_x = padded_x.unsqueeze(1)
     # [batch_size, 1, num_tokens, hidden_size] -> [batch_size, block_size_0 * block_size_1, num_blocks]
+    """
     blocked_x = F.unfold(
         padded_x,
         kernel_size=block_shape[1:],
@@ -368,6 +369,8 @@ def _block_3d_activation(x: Tensor, block_shape: List[int]):
         padding=0,
         stride=block_shape[1:],
     )
+    """
+    blocked_x = padded_x.reshape(block_shape[0], block_shape[1] * block_shape[2], -1)
 
     per_block_max = torch.abs(blocked_x).max(dim=1, keepdim=True)[0]
 
@@ -378,6 +381,7 @@ def _unblock_to_3d_activation(
     blocked_x: Tensor, x_shape_before_blocking, padded_x_shape, block_shape
 ):
     # [batch_size, block_size_0 * block_size_1, num_blocks] -> [batch_size, 1, padded_x_shape_1, padded_x_shape_2]
+    """
     x = F.fold(
         blocked_x,
         output_size=padded_x_shape[1:],
@@ -386,7 +390,9 @@ def _unblock_to_3d_activation(
         padding=0,
         stride=block_shape[1:],
     )
-    x = x.squeeze(1)
+    """
+    # x = x.squeeze(1)
+    x = torch.reshape(blocked_x, x_shape_before_blocking)
     indexes = []
     for i in range(len(x_shape_before_blocking)):
         indexes.append(slice(None, x_shape_before_blocking[i]))
