@@ -392,7 +392,7 @@ def _unblock_to_3d_activation(
         stride=block_shape[1:],
     )
     """
-    x = torch.reshape(blocked_x.permute(0,2,1), (x_shape_before_blocking[0], padded_x_shape[1], padded_x_shape[2]))
+    x = torch.reshape(blocked_x.permute(0,2,1), (x_shape_before_blocking[0], padded_x_shape[2], padded_x_shape[1]))
     x = torch.permute(x, (0,2,1))
     # x = x.squeeze(1)
     indexes = []
