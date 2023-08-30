@@ -16,7 +16,7 @@ valid_trials = [trial for trial in trials if trial.value is not None]
 top_n = int(len(valid_trials) * 0.1)
 
 # Sort the trials by their values
-sorted_trials = sorted(trials, key=lambda trial: trial.value)
+sorted_trials = sorted(trials, key=lambda trial: trial.value if trial.value is not None else float('inf'))
 
 # Initialize a dictionary to store the parameter distributions
 parameter_distribution = {}
