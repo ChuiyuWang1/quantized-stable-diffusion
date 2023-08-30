@@ -80,6 +80,30 @@ def assign_bfp_search(trial, config, path=[]):
         elif key == "name":
             config[key] = "block_fp"
 
+def assign_best(trial: Dict, config, path=[]):
+    if config is None:
+        return
+    for key, value in config.items():
+        new_path = path + [key]
+        if isinstance(value, dict):
+            assign_best(trial, value, new_path)
+        elif isinstance(value, list):
+            for i, item in enumerate(value):
+                assign_best(trial, item, new_path + [i])
+        elif key in ["data_in_width", "weight_width", "bias_width"]:
+            if len(new_path) > 0:
+                name = "_".join(str(p) for p in new_path)
+                default_value = config[key]
+                trial_value = trial[name]
+                config[key] += trial_value
+                new_value = config[key]
+                if key == "data_in_width":
+                    config["data_in_frac_width"] += trial_value
+                elif key == "weight_width":
+                    config["weight_frac_width"] += trial_value
+                elif key == "bias_width":
+                    config["bias_width"] += trial_value
+
     
 class QuantConfigBase():
     def __init__(self) -> None:
@@ -886,6 +910,8 @@ class CelebA256UNetQuantConfig(QuantConfigBase):
                             item["bias_block_size"] = 16
                 assign_bfp_search(trial, self.quant_config)
                 print("Apply Block FP Quantisation")
+            elif isinstance(trial, dict):
+                assign_best(trial, self.quant_config)
             else:
                 assign_search(trial, self.quant_config)
         
@@ -1428,6 +1454,8 @@ class ImageNet256UNetQuantConfig(QuantConfigBase):
                             item["bias_block_size"] = 16
                 assign_bfp_search(trial, self.quant_config)
                 print("Apply Block FP Quantisation")
+            elif isinstance(trial, dict):
+                assign_best(trial, self.quant_config)
             else:
                 assign_search(trial, self.quant_config)
         
