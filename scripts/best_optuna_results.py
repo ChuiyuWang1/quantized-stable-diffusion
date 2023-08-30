@@ -9,8 +9,11 @@ study = optuna.load_study(study_name="celebahq_bfp_quant_search", storage=storag
 # Retrieve all trials
 trials = study.get_trials(deepcopy=False)
 
+# Filter out trials with no value
+valid_trials = [trial for trial in trials if trial.value is not None]
+
 # Calculate the number of trials for the top 10%
-top_n = int(len(trials) * 0.1)
+top_n = int(len(valid_trials) * 0.1)
 
 # Sort the trials by their values
 sorted_trials = sorted(trials, key=lambda trial: trial.value)
