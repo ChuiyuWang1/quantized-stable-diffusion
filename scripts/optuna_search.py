@@ -16,7 +16,7 @@ sampler = optuna.samplers.TPESampler()
 
 storage_name = "sqlite:///optuna.db"
 
-study = optuna.create_study(sampler=sampler, direction=['minimize', 'minimize', 'minimize'],
+study = optuna.create_study(sampler=sampler, directions=['minimize', 'minimize', 'minimize'],
                             study_name="celebahq_int_quant_search", storage=storage_name, load_if_exists=True)
 study.optimize(objective, n_trials=100)
 
