@@ -533,7 +533,7 @@ def sampling_main(
     numpylogdir = os.path.join(logdir_test, "numpy")
     os.makedirs(imglogdir)
     os.makedirs(numpylogdir)
-    print(logdir)
+    print(logdir_test)
     print(75 * "=")
 
     run(model, imglogdir, eta=eta,
