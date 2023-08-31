@@ -43,29 +43,34 @@ def forward_hook_fn(module, input, output, layer_name, layer_stats):
     # Profile the layer and update statistics
     if isinstance(module, LinearInteger):
         profile_result = profile_linear_layer(module.config, module.in_features, module.out_features, module.bias is not None, input[0].shape[0])
+        layer_stats[layer_name] = profile_result
     elif isinstance(module, Conv1dInteger):
         profile_result = profile_conv1d_layer(module.config, module.in_channels, module.out_channels, module.kernel_size[0], module.stride[0], module.bias is not None, input[0].shape[0], input[0].shape[-1])
+        layer_stats[layer_name] = profile_result
     elif isinstance(module, Conv2dInteger):
         profile_result = profile_conv2d_layer(module.config, module.in_channels, module.out_channels, module.kernel_size[0], module.stride[0], module.bias is not None, input[0].shape[0], input[0].shape[-2], input[0].shape[-1])
+        layer_stats[layer_name] = profile_result
     elif isinstance(module, QKVAttentionLegacy):
         profile_result = profile_matmul_layer(module.config_0, module.q.shape, module.k.shape)
         profile_result_2 = profile_matmul_layer(module.config_1, module.weight.shape, module.v.shape)
         update_profile(profile_result, profile_result_2)
+        layer_stats[layer_name] = profile_result
     elif isinstance(module, SiLUInteger):
         profile_result = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
         profile_result["num_acts"] = input[0].numel()
         profile_result["act_bits"] = module.config["data_in_width"] * profile_result["num_acts"]
+        layer_stats[layer_name] = profile_result
     elif isinstance(module, GEGLU):
         profile_result = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
         profile_result["num_acts"] = module.gate.numel()
         profile_result["act_bits"] = module.gelu_config["data_in_width"] * profile_result["num_acts"]
+        layer_stats[layer_name] = profile_result
     elif isinstance(module, CrossAttention):
         profile_result = profile_matmul_layer(module.config_0, module.q.shape, module.k.shape)
         profile_result_2 = profile_matmul_layer(module.config_1, module.attn.shape, module.v.shape)
-        for key in profile_result.keys():
-            profile_result[key] += profile_result_2[key]
+        update_profile(profile_result, profile_result_2)
+        layer_stats[layer_name] = profile_result
 
-    layer_stats[layer_name] = profile_result
 
 class GeneratedImageDataset(Dataset):
     def __init__(self, root, transform=None):
@@ -515,7 +520,7 @@ def sampling_main(
     layer_stats = {}
     hooks = []
 
-    for name, layer in model.diffusion_model.named_children():
+    for name, layer in model.model.diffusion_model.named_children():
         layer_stats[name] = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
         hook = layer.register_forward_hook(lambda module, input, output, name=name: forward_hook_fn(module, input, output, name, layer_stats))
         hooks.append(hook)
