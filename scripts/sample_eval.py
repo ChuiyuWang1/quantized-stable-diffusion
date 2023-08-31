@@ -515,7 +515,7 @@ def sampling_main(
     layer_stats = {}
     hooks = []
 
-    for name, layer in model.diffusionmodel.named_children():
+    for name, layer in model.diffusion_model.named_children():
         layer_stats[name] = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
         hook = layer.register_forward_hook(lambda module, input, output, name=name: forward_hook_fn(module, input, output, name, layer_stats))
         hooks.append(hook)
