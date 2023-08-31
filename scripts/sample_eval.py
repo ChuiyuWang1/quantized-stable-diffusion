@@ -520,10 +520,23 @@ def sampling_main(
     layer_stats = {}
     hooks = []
 
+    def attach_hooks_recursive(module, name, layer_stats):
+        # Attach hooks to the current module
+        hook = module.register_forward_hook(lambda module, input, output, name=name: forward_hook_fn(module, input, output, name, layer_stats))
+        hooks.append(hook)
+        
+        # Recursively attach hooks to child modules
+        for name, child in module.named_children():
+            attach_hooks_recursive(child, name, layer_stats)
+
+
+    """
     for name, layer in model.model.diffusion_model.named_children():
         layer_stats[name] = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
         hook = layer.register_forward_hook(lambda module, input, output, name=name: forward_hook_fn(module, input, output, name, layer_stats))
         hooks.append(hook)
+    """
+    attach_hooks_recursive(model.model.diffusion_model, "diffusion_model", layer_stats)
 
     # Perform a forward pass to collect statistics with hooks
     print("calculating FLOPs and bits")
