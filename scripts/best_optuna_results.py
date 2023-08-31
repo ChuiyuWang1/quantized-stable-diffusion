@@ -4,7 +4,7 @@ import numpy as np
 
 # Create and run the original study
 storage_name = "sqlite:///optuna.db"
-study = optuna.load_study(study_name="celebahq_bfp_quant_search", storage=storage_name)
+study = optuna.load_study(study_name="celebahq_int_quant_search", storage=storage_name)
 
 # Retrieve all trials
 trials = study.get_trials(deepcopy=False)
