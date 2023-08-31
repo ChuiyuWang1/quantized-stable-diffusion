@@ -9,7 +9,7 @@ def objective(trial):
     quant_mode = "integer" # either "integer" or "block_fp"
     sample_dir, mem_density, total_flops_bitwidth = sampling_main(trial, quant_mode, resume, log_dir, n_samples=1000, custom_steps=100)
     metric = evaluation(sample_dir, dataset, mode)
-    return [metric["frechet_inception_distance"], mem_density, total_flops_bitwidth]
+    return [metric["frechet_inception_distance"], 1 / mem_density, total_flops_bitwidth]
 
 # We use the multivariate TPE sampler.
 sampler = optuna.samplers.TPESampler()

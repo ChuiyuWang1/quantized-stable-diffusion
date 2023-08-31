@@ -39,12 +39,6 @@ def custom_to_pil(x):
         x = x.convert("RGB")
     return x
 
-# Custom JSON encoder that converts large integers to strings
-class CustomJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, int) and abs(obj) > 2**32:
-            return str(obj)
-        return super().default(obj)
 
 def forward_hook_fn(module, input, output, layer_name, layer_stats):
     # Profile the layer and update statistics
@@ -585,10 +579,7 @@ def sampling_main(
     print(f"Average Bitwidth: {average_bitwidth}")
     print(f"Total FLOPs: {total_flops}")
     print(f"Total FLOPs bitwidth: {total_flops_bitwidth}")
-
-    output_filename = os.path.join(logdir_test, "hardware_info.txt")
-    with open(output_filename, 'w') as outfile:
-        json.dump(layer_stats, outfile, indent=4, cls=CustomJSONEncoder)
+    print(f"Memory density: {mem_density}")
     
     # shutil.rmtree(imglogdir)
     shutil.rmtree(numpylogdir)
