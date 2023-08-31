@@ -25,15 +25,15 @@ def assign_search(trial, config, path=[]):
             if len(new_path) > 0:
                 name = "_".join(str(p) for p in new_path)
                 default_value = config[key]
-                trial_value = trial.suggest_categorical(name, [-4, -2, 0, 2, 8])
-                config[key] += trial_value
-                new_value = config[key]
+                trial_value = trial.suggest_categorical(name, [4, 6, 8, 10, 16])
+                config[key] = trial_value
+                differ = config[key] - default_value
                 if key == "data_in_width":
-                    config["data_in_frac_width"] += trial_value
+                    config["data_in_frac_width"] += differ
                 elif key == "weight_width":
-                    config["weight_frac_width"] += trial_value
+                    config["weight_frac_width"] += differ
                 elif key == "bias_width":
-                    config["bias_width"] += trial_value
+                    config["bias_width"] += differ
                 # print(f"Modified {key} at path {new_path} from {default_value} to {new_value}")
 
 def assign_vanilla_int(quant_config):
