@@ -416,15 +416,20 @@ class QKVAttentionLegacy(nn.Module):
         ch = width // (3 * self.n_heads)
         q, k, v = qkv.reshape(bs * self.n_heads, ch * 3, length).split(ch, dim=1)
         # scale = 1 / math.sqrt(math.sqrt(ch))
-        matmul_q0 = get_quantized_func("matmul", self.quant_config.get("matmul_0")[self.layer_idx])
+        self.config_0 = self.quant_config.get("matmul_0")[self.layer_idx]
+        self.k, self.v = k, v
+        matmul_q0 = get_quantized_func("matmul", self.config_0)
         # weight = th.einsum(
         #     "bct,bcs->bts", q * scale, k * scale
-        weight = matmul_q0(th.permute(q, (0, 2, 1)), k, config=self.quant_config.get("matmul_0")[self.layer_idx]) / math.sqrt(ch)
+        self.q = th.permute(q, (0,2,1))
+        weight = matmul_q0(self.q, k, config=self.quant_config.get("matmul_0")[self.layer_idx]) / math.sqrt(ch)
         # )  # More stable with f16 than dividing afterwards
         weight = th.softmax(weight.float(), dim=-1).type(weight.dtype)
-        matmul_q1 = get_quantized_func("matmul", self.quant_config.get("matmul_1")[self.layer_idx])
+        self.config_1 = self.quant_config.get("matmul_1")[self.layer_idx]
+        self.weight = th.permute(weight, (0, 2, 1))
+        matmul_q1 = get_quantized_func("matmul", self.config_1)
         # a = th.einsum("bts,bcs->bct", weight, v)
-        a = matmul_q1(v, th.permute(weight, (0, 2, 1)), config=self.quant_config.get("matmul_1")[self.layer_idx])
+        a = matmul_q1(v, self.weight, config=self.quant_config.get("matmul_1")[self.layer_idx])
         return a.reshape(bs, -1, length)
 
     @staticmethod

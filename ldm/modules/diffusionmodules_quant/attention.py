@@ -46,6 +46,7 @@ class GEGLU(nn.Module):
     def forward(self, x):
         x, gate = self.proj(x).chunk(2, dim=-1)
         # return x * F.gelu(gate)
+        self.gate = gate
         gelu_q = get_quantized_func("gelu", self.gelu_config)
         return x * gelu_q(gate, config=self.gelu_config)
 
@@ -198,9 +199,12 @@ class CrossAttention(nn.Module):
 
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> (b h) n d', h=h), (q, k, v))
 
-        matmul_q0 = get_quantized_func("matmul", self.quant_config.get("matmul_0"+self.postfix)[self.layer_idx])
+        self.config_0 = self.quant_config.get("matmul_0"+self.postfix)[self.layer_idx]
+        matmul_q0 = get_quantized_func("matmul", self.config_0)
         # sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
-        sim = matmul_q0(q, torch.permute(k, (0,2,1)), config=self.quant_config.get("matmul_0"+self.postfix)[self.layer_idx]) * self.scale
+        self.q = q
+        self.k = torch.permute(k, (0,2,1))
+        sim = matmul_q0(q, self.k, config=self.quant_config.get("matmul_0"+self.postfix)[self.layer_idx]) * self.scale
 
         if exists(mask):
             mask = rearrange(mask, 'b ... -> b (...)')
@@ -211,7 +215,10 @@ class CrossAttention(nn.Module):
         # attention, what we cannot get enough of
         attn = sim.softmax(dim=-1)
 
-        matmul_q1 = get_quantized_func("matmul", self.quant_config.get("matmul_1"+self.postfix)[self.layer_idx])
+        self.config_1 = self.quant_config.get("matmul_1"+self.postfix)[self.layer_idx]
+        matmul_q1 = get_quantized_func("matmul", self.config_1)
+        self.attn = attn
+        self.v = v
         # out = einsum('b i j, b j d -> b i d', attn, v)
         out = matmul_q1(attn, v, config=self.quant_config.get("matmul_1"+self.postfix)[self.layer_idx])
         out = rearrange(out, '(b h) n d -> b n (h d)', h=h)

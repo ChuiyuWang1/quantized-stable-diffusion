@@ -17,6 +17,11 @@ from ldm.util import instantiate_from_config
 from ldm.data.imagenet import ImageNetTrain, ImageNetValidation
 from taming.data.faceshq import CelebAHQTrain, CelebAHQValidation
 
+from ldm.chop.passes.transforms.quantize.quantized_modules import *
+from ldm.chop.passes.transforms.quantize.quantized_layer_profiler import *
+from ldm.modules.diffusionmodules_quant.openaimodel import QKVAttentionLegacy
+from ldm.modules.diffusionmodules_quant.attention import GEGLU, CrossAttention
+
 import random
 import json
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -34,6 +39,33 @@ def custom_to_pil(x):
         x = x.convert("RGB")
     return x
 
+def forward_hook_fn(module, input, output, layer_name, layer_stats):
+    # Profile the layer and update statistics
+    if isinstance(module, LinearInteger):
+        profile_result = profile_linear_layer(module.config, module.in_features, module.out_features, module.bias is not None, input[0].shape[0])
+    elif isinstance(module, Conv1dInteger):
+        profile_result = profile_conv1d_layer(module.config, module.in_channels, module.out_channels, module.kernel_size[0], module.stride[0], module.bias is not None, input[0].shape[0], input[0].shape[-1])
+    elif isinstance(module, Conv2dInteger):
+        profile_result = profile_conv2d_layer(module.config, module.in_channels, module.out_channels, module.kernel_size[0], module.stride[0], module.bias is not None, input[0].shape[0], input[0].shape[-2], input[0].shape[-1])
+    elif isinstance(module, QKVAttentionLegacy):
+        profile_result = profile_matmul_layer(module.config_0, module.q.shape, module.k.shape)
+        profile_result_2 = profile_matmul_layer(module.config_1, module.weight.shape, module.v.shape)
+        update_profile(profile_result, profile_result_2)
+    elif isinstance(module, SiLUInteger):
+        profile_result = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
+        profile_result["num_acts"] = input[0].numel()
+        profile_result["act_bits"] = module.config["data_in_width"] * profile_result["num_acts"]
+    elif isinstance(module, GEGLU):
+        profile_result = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
+        profile_result["num_acts"] = module.gate.numel()
+        profile_result["act_bits"] = module.gelu_config["data_in_width"] * profile_result["num_acts"]
+    elif isinstance(module, CrossAttention):
+        profile_result = profile_matmul_layer(module.config_0, module.q.shape, module.k.shape)
+        profile_result_2 = profile_matmul_layer(module.config_1, module.attn.shape, module.v.shape)
+        for key in profile_result.keys():
+            profile_result[key] += profile_result_2[key]
+
+    layer_stats[layer_name] = profile_result
 
 class GeneratedImageDataset(Dataset):
     def __init__(self, root, transform=None):
@@ -478,6 +510,63 @@ def sampling_main(
         global_step = 0
     print(f"global step: {global_step}")
     print(75 * "=")
+
+    # Calculate FLOPs and total bits
+    layer_stats = {}
+    hooks = []
+
+    for name, layer in model.diffusionmodel.named_children():
+        layer_stats[name] = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
+        hook = layer.register_forward_hook(lambda module, input, output, name=name: forward_hook_fn(module, input, output, name, layer_stats))
+        hooks.append(hook)
+
+    # Perform a forward pass to collect statistics with hooks
+    print("calculating FLOPs and bits")
+    print("logging to:")
+    logdir_test = os.path.join(logdir, "flops", f"{global_step:08}", now)
+    imglogdir = os.path.join(logdir_test, "img")
+    numpylogdir = os.path.join(logdir_test, "numpy")
+    run(model, imglogdir, eta=eta,
+        vanilla=vanilla_sample,  n_samples=batch_size, custom_steps=custom_steps,
+        batch_size=batch_size, nplog=numpylogdir)
+
+    # Calculate average bitwidths and total FLOPs
+    profile_overall = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
+    for layer_name in layer_stats.keys():
+        update_profile(profile_overall, layer_stats[layer_name])
+
+    total_num_params = profile_overall["num_params"]
+    total_num_acts = profile_overall["num_acts"]
+    total_param_bits = profile_overall["param_bits"]
+    total_activation_bits = profile_overall["act_bits"]
+    total_flops = profile_overall["flops"]
+    total_flops_bitwidth = profile_overall["flops_bitwidth"]
+
+    total_bits = total_param_bits + total_activation_bits
+    
+    # original models uses fp32
+    compare = 32 
+    compare_total_bitwidth = compare * (total_num_params + total_num_acts)
+
+    mem_density = compare_total_bitwidth / total_bits
+
+    # Print or store the results
+    average_bitwidth = total_bits / (total_num_params + total_num_acts)
+    print(f"Average Bitwidth: {average_bitwidth}")
+    print(f"Total FLOPs: {total_flops}")
+    print(f"Total FLOPs bitwidth: {total_flops_bitwidth}")
+
+    output_filename = os.path.join(logdir_test, "hardware_info.json")
+    with open(output_filename, 'w') as outfile:
+        json.dump(layer_stats, outfile)
+    
+    # shutil.rmtree(imglogdir)
+    shutil.rmtree(numpylogdir)
+
+    # Detach the hooks from the layers
+    for hook in hooks:
+        hook.remove()
+
     print("logging to:")
     logdir = os.path.join(logdir, "samples", f"{global_step:08}", now)
     imglogdir = os.path.join(logdir, "img")
@@ -500,9 +589,10 @@ def sampling_main(
     run(model, imglogdir, eta=eta,
         vanilla=vanilla_sample,  n_samples=n_samples, custom_steps=custom_steps,
         batch_size=batch_size, nplog=numpylogdir)
+    shutil.rmtree(numpylogdir)
 
     print("done.")
-    return imglogdir
+    return imglogdir, mem_density, total_flops_bitwidth
 
 
 
