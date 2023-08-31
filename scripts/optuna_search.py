@@ -14,7 +14,7 @@ def objective(trial):
 # We use the multivariate TPE sampler.
 sampler = optuna.samplers.TPESampler()
 
-storage_name = "sqlite:///optuna.db"
+storage_name = "sqlite:///optuna_final.db"
 
 study = optuna.create_study(sampler=sampler, directions=['minimize', 'minimize', 'minimize'],
                             study_name="celebahq_int_quant_search", storage=storage_name, load_if_exists=True)

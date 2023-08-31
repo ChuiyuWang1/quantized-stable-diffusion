@@ -531,6 +531,11 @@ def sampling_main(
     logdir_test = os.path.join(logdir, "flops", f"{global_step:08}", now)
     imglogdir = os.path.join(logdir_test, "img")
     numpylogdir = os.path.join(logdir_test, "numpy")
+    os.makedirs(imglogdir)
+    os.makedirs(numpylogdir)
+    print(logdir)
+    print(75 * "=")
+
     run(model, imglogdir, eta=eta,
         vanilla=vanilla_sample,  n_samples=batch_size, custom_steps=custom_steps,
         batch_size=batch_size, nplog=numpylogdir)
