@@ -588,6 +588,7 @@ def sampling_main(
     print(f"Total FLOPs: {total_flops}")
     print(f"Total FLOPs bitwidth: {total_flops_bitwidth}")
     print(f"Memory density: {mem_density}")
+    avg_flops_bitwidth = total_flops_bitwidth / (total_num_params + total_num_acts)
     
     file_name = os.path.join(logdir_test, "layer_stats.csv")
     with open(file_name, "w") as fp:
@@ -627,7 +628,7 @@ def sampling_main(
     shutil.rmtree(numpylogdir)
 
     print("done.")
-    return imglogdir, mem_density, total_flops_bitwidth
+    return imglogdir, mem_density, avg_flops_bitwidth
 
 
 
