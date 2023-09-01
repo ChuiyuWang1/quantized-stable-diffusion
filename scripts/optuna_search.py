@@ -2,10 +2,10 @@ import optuna
 from scripts.sample_eval import sampling_main, evaluation
 
 def objective(trial):
-    dataset = "celebahq"
-    mode = "validation"
-    resume = "models/ldm/celeba256/model.ckpt"
-    log_dir = "samples/celeba256_search"
+    dataset = "celebahq" # celebahq or imagenet
+    mode = "validation" # train or validation
+    resume = "models/ldm/celeba256/model.ckpt" # "models/ldm/celeba256/model.ckpt" or "models/ldm/cin256-v2/model.ckpt"
+    log_dir = "samples/celeba256_search" # "samples/celeba256_search" or "samples/cin256-v2_search"
     quant_mode = "integer" # either "integer" or "block_fp"
     sample_dir, mem_density, total_flops_bitwidth = sampling_main(trial, quant_mode, resume, log_dir, n_samples=1000, custom_steps=100)
     metric = evaluation(sample_dir, dataset, mode)
