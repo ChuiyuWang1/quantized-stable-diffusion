@@ -59,12 +59,18 @@ def forward_hook_fn(module, input, output, layer_name, layer_stats):
     elif isinstance(module, SiLUInteger):
         profile_result = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
         profile_result["num_acts"] = input[0].numel()
-        profile_result["act_bits"] = module.config["data_in_width"] * profile_result["num_acts"]
+        if module.config.get("bypass", False):
+            profile_result["act_bits"] = 32 * profile_result["num_acts"]
+        else:
+            profile_result["act_bits"] = module.config["data_in_width"] * profile_result["num_acts"]
         layer_stats[layer_name] = profile_result
     elif isinstance(module, GEGLU):
         profile_result = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
         profile_result["num_acts"] = module.gate.numel()
-        profile_result["act_bits"] = module.gelu_config["data_in_width"] * profile_result["num_acts"]
+        if module.config.get("bypass", False):
+            profile_result["act_bits"] = 32 * profile_result["num_acts"]
+        else:
+            profile_result["act_bits"] = module.gelu_config["data_in_width"] * profile_result["num_acts"]
         layer_stats[layer_name] = profile_result
     elif isinstance(module, CrossAttention):
         profile_result = profile_matmul_layer(module.config_0, module.q.shape, module.k.shape)
@@ -521,14 +527,15 @@ def sampling_main(
     layer_stats = {}
     hooks = []
 
-    def attach_hooks_recursive(module, name, layer_stats):
+    def attach_hooks_recursive(module, cur_name, layer_stats):
         # Attach hooks to the current module
-        hook = module.register_forward_hook(lambda module, input, output, name=name: forward_hook_fn(module, input, output, name, layer_stats))
+        hook = module.register_forward_hook(lambda module, input, output, name=cur_name: forward_hook_fn(module, input, output, name, layer_stats))
         hooks.append(hook)
         
         # Recursively attach hooks to child modules
-        for name, child in module.named_children():
-            attach_hooks_recursive(child, name, layer_stats)
+        for chd_name, child in module.named_children():
+            nested_name = cur_name + '.' + chd_name
+            attach_hooks_recursive(child, nested_name, layer_stats)
 
 
     """
@@ -576,10 +583,17 @@ def sampling_main(
 
     # Print or store the results
     average_bitwidth = total_bits / (total_num_params + total_num_acts)
+    print(f"Total params: {total_num_params}")
     print(f"Average Bitwidth: {average_bitwidth}")
     print(f"Total FLOPs: {total_flops}")
     print(f"Total FLOPs bitwidth: {total_flops_bitwidth}")
     print(f"Memory density: {mem_density}")
+    
+    file_name = os.path.join(logdir_test, "layer_stats.csv")
+    with open(file_name, "w") as fp:
+        fp.write("Name, num_params, num_acts, param_bits, act_bits, flops, flop_bitwidth\n")
+        for name in layer_stats.keys():
+            fp.write(f"{name},{layer_stats[name]['num_params']}, {layer_stats[name]['num_acts']}, {layer_stats[name]['param_bits']}, {layer_stats[name]['act_bits']}, {layer_stats[name]['flops']}, {layer_stats[name]['flops_bitwidth']}\n")
     
     # shutil.rmtree(imglogdir)
     shutil.rmtree(numpylogdir)
