@@ -111,8 +111,9 @@ def profile_linear_layer(
     flops = batch_size * out_features * (2 * in_features - 1)
     flops_bitwidth = flops * x_width * w_width
     if bias:
-        flops += batch_size * out_features
-        flops_bitwidth += batch_size * out_features * b_width
+        flops_b = batch_size * out_features
+        flops += flops_b
+        flops_bitwidth += flops_b * b_width * x_width
     return {
         "num_params": np.rint(num_params).astype(np.int64),
         "num_acts": np.rint(num_xs).astype(np.int64),
@@ -254,8 +255,9 @@ def profile_conv1d_layer(
     flops = batch_size * out_channels * (2 * in_channels * kernel_size - 1) * (sequence_length // stride)
     flops_bitwidth = flops * x_width * w_width
     if bias:
-        flops += batch_size * out_channels * (sequence_length // stride)
-        flops_bitwidth += batch_size * out_channels * (sequence_length // stride) * b_width
+        flops_b = batch_size * out_channels * (sequence_length // stride)
+        flops += flops_b
+        flops_bitwidth += flops_b * b_width * x_width
     return {
         "num_params": np.rint(num_params).astype(np.int64),
         "num_acts": np.rint(num_xs).astype(np.int64),
@@ -338,8 +340,9 @@ def profile_conv2d_layer(
     flops = batch_size * out_channels * (2 * in_channels * kernel_size * kernel_size - 1) * (height // stride) * (width // stride)
     flops_bitwidth = flops * x_width * w_width
     if bias:
-        flops += batch_size * out_channels * (height // stride) * (width // stride)
-        flops_bitwidth += batch_size * out_channels * (height // stride) * (width // stride) * b_width
+        flops_b = batch_size * out_channels * (height // stride) * (width // stride)
+        flops += flops_b
+        flops_bitwidth += flops_b * b_width * x_width
     return {
         "num_params": np.rint(num_params).astype(np.int64),
         "num_acts": np.rint(num_xs).astype(np.int64),
