@@ -67,7 +67,7 @@ def forward_hook_fn(module, input, output, layer_name, layer_stats):
     elif isinstance(module, GEGLU):
         profile_result = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
         profile_result["num_acts"] = module.gate.numel()
-        if module.config.get("bypass", False):
+        if module.gelu_config.get("bypass", False):
             profile_result["act_bits"] = 32 * profile_result["num_acts"]
         else:
             profile_result["act_bits"] = module.gelu_config["data_in_width"] * profile_result["num_acts"]
