@@ -1,4 +1,5 @@
 import optuna
+import json
 from scripts.sample_eval import sampling_main, evaluation
 
 def objective(trial):
