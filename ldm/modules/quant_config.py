@@ -11,30 +11,39 @@ def add_int_recursive(item, add_value):
     else:
         return item
     
-def assign_search(trial, config, path=[]):
+def assign_search(trial, config, path=[], act_switch=False):
+    switch = act_switch
     if config is None:
         return
     for key, value in config.items():
+        if key in ["silu_temb","silu_res_in","silu_res_emb","silu_res_out","ff_gelu"]:
+            continue
+        elif key in ["matmul_0", "matmul_1", "matmul_0_0","matmul_1_0","matmul_0_1","matmul_1_1"]: 
+            switch=True
         new_path = path + [key]
         if isinstance(value, dict):
-            assign_search(trial, value, new_path)
+            assign_search(trial, value, new_path, switch)
         elif isinstance(value, list):
             for i, item in enumerate(value):
-                assign_search(trial, item, new_path + [i])
+                assign_search(trial, item, new_path + [i], switch)
         elif key in ["data_in_width", "weight_width", "bias_width"]:
             if len(new_path) > 0:
                 name = "_".join(str(p) for p in new_path)
                 default_value = config[key]
-                trial_value = trial.suggest_categorical(name, [4, 6, 8, 10, 16])
-                config[key] = trial_value
-                differ = config[key] - default_value
                 if key == "data_in_width":
-                    config["data_in_frac_width"] += differ
-                elif key == "weight_width":
-                    config["weight_frac_width"] += differ
-                elif key == "bias_width":
-                    config["bias_width"] += differ
-                # print(f"Modified {key} at path {new_path} from {default_value} to {new_value}")
+                    if switch:
+                        trial_value = trial.suggest_categorical(name, [4, 6, 8, 10, 16])
+                        config[key] = trial_value
+                        differ = config[key] - default_value
+                        config["data_in_frac_width"] += differ
+                else:
+                    trial_value = trial.suggest_categorical(name, [4, 6, 8, 10, 16])
+                    differ = config[key] - default_value
+                    if key == "weight_width":
+                        config["weight_frac_width"] += differ
+                    elif key == "bias_width":
+                        config["bias_width"] += differ
+                    # print(f"Modified {key} at path {new_path} from {default_value} to {new_value}")
 
 def assign_vanilla_int(quant_config):
     if quant_config is None:
@@ -80,29 +89,39 @@ def assign_bfp_search(trial, config, path=[]):
         elif key == "name":
             config[key] = "block_fp"
 
-def assign_best(trial: Dict, config, path=[]):
+def assign_best(trial: Dict, config, path=[], act_switch=False):
+    switch = act_switch
     if config is None:
         return
     for key, value in config.items():
+        if key in ["silu_temb","silu_res_in","silu_res_emb","silu_res_out", "ff_gelu"]:
+            continue
+        elif key in ["matmul_0", "matmul_1", "matmul_0_0","matmul_1_0","matmul_0_1","matmul_1_1"]: 
+            switch=True
         new_path = path + [key]
         if isinstance(value, dict):
-            assign_best(trial, value, new_path)
+            assign_best(trial, value, new_path, switch)
         elif isinstance(value, list):
             for i, item in enumerate(value):
-                assign_best(trial, item, new_path + [i])
+                assign_best(trial, item, new_path + [i], switch)
         elif key in ["data_in_width", "weight_width", "bias_width"]:
             if len(new_path) > 0:
                 name = "_".join(str(p) for p in new_path)
                 default_value = config[key]
-                trial_value = trial[name]
-                config[key] += trial_value
-                new_value = config[key]
                 if key == "data_in_width":
-                    config["data_in_frac_width"] += trial_value
-                elif key == "weight_width":
-                    config["weight_frac_width"] += trial_value
-                elif key == "bias_width":
-                    config["bias_width"] += trial_value
+                    if switch:
+                        trial_value = trial[name]
+                        config[key] = trial_value
+                        differ = config[key] - default_value
+                        config["data_in_frac_width"] += differ
+                else:
+                    trial_value = trial[name]
+                    config[key] = trial_value
+                    differ = config[key] - default_value
+                    if key == "weight_width":
+                        config["weight_frac_width"] += differ
+                    elif key == "bias_width":
+                        config["bias_width"] += differ
 
     
 class QuantConfigBase():
