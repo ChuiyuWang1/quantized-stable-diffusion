@@ -38,6 +38,7 @@ def assign_search(trial, config, path=[], act_switch=False):
                         config["data_in_frac_width"] += differ
                 else:
                     trial_value = trial.suggest_categorical(name, [4, 6, 8, 10, 16])
+                    config[key] = trial_value
                     differ = config[key] - default_value
                     if key == "weight_width":
                         config["weight_frac_width"] += differ
