@@ -26,6 +26,9 @@ import random
 import json
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
+# torch.manual_seed(23)
+# random.seed(3080)
+
 rescale = lambda x: (x + 1.) / 2.
 
 def custom_to_pil(x):
