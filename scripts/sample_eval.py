@@ -39,16 +39,26 @@ def custom_to_pil(x):
         x = x.convert("RGB")
     return x
 
+def compute_tensor_bits_block_fp(
+    tensor_shape: np.ndarray, width: int, exponent_width: int, block_size: np.ndarray
+):
+    if tensor_shape.size > block_size.size:
+        block_size = np.append([1] * (tensor_shape.size - block_size.size), block_size)
+    elif tensor_shape.size < block_size.size:
+        block_size = block_size[-tensor_shape.ndim :]
+
+    num_blocks = np.prod(np.ceil(tensor_shape / block_size))
+    return num_blocks * np.prod(block_size) * width + num_blocks * exponent_width
 
 def forward_hook_fn(module, input, output, layer_name, layer_stats):
     # Profile the layer and update statistics
-    if isinstance(module, LinearInteger):
+    if isinstance(module, LinearInteger) or isinstance(module, LinearBlockFP):
         profile_result = profile_linear_layer(module.config, module.in_features, module.out_features, module.bias is not None, input[0].shape[0])
         layer_stats[layer_name] = profile_result
-    elif isinstance(module, Conv1dInteger):
+    elif isinstance(module, Conv1dInteger) or isinstance(module, Conv1dBlockFP):
         profile_result = profile_conv1d_layer(module.config, module.in_channels, module.out_channels, module.kernel_size[0], module.stride[0], module.bias is not None, input[0].shape[0], input[0].shape[-1])
         layer_stats[layer_name] = profile_result
-    elif isinstance(module, Conv2dInteger):
+    elif isinstance(module, Conv2dInteger) or isinstance(module, Conv2dBlockFP):
         profile_result = profile_conv2d_layer(module.config, module.in_channels, module.out_channels, module.kernel_size[0], module.stride[0], module.bias is not None, input[0].shape[0], input[0].shape[-2], input[0].shape[-1])
         layer_stats[layer_name] = profile_result
     elif isinstance(module, QKVAttentionLegacy):
@@ -56,21 +66,29 @@ def forward_hook_fn(module, input, output, layer_name, layer_stats):
         profile_result_2 = profile_matmul_layer(module.config_1, module.weight.shape, module.v.shape)
         update_profile(profile_result, profile_result_2)
         layer_stats[layer_name] = profile_result
-    elif isinstance(module, SiLUInteger):
+    elif isinstance(module, SiLUInteger) or isinstance(module, SiLUBlockFP):
         profile_result = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
         profile_result["num_acts"] = input[0].numel()
         if module.config.get("bypass", False):
             profile_result["act_bits"] = 32 * profile_result["num_acts"]
-        else:
+        elif module.config["name"] == "integer":
             profile_result["act_bits"] = module.config["data_in_width"] * profile_result["num_acts"]
+        else:
+            profile_result["act_bits"] = compute_tensor_bits_block_fp(np.array(input[0].size()), module.config["data_in_width"], 
+                                                                      module.config["data_in_exponent_width"], 
+                                                                      np.array(module.config["data_in_block_size"]))
         layer_stats[layer_name] = profile_result
     elif isinstance(module, GEGLU):
         profile_result = {"num_params": 0, "num_acts": 0, "param_bits": 0, "act_bits": 0, "flops": 0, "flops_bitwidth": 0}
         profile_result["num_acts"] = module.gate.numel()
         if module.gelu_config.get("bypass", False):
             profile_result["act_bits"] = 32 * profile_result["num_acts"]
-        else:
+        elif module.gelu_config["name"] == "integer":
             profile_result["act_bits"] = module.gelu_config["data_in_width"] * profile_result["num_acts"]
+        else:
+            profile_result["act_bits"] = compute_tensor_bits_block_fp(np.array(module.gate.size()), module.gelu_config["data_in_width"], 
+                                                                      module.gelu_config["data_in_exponent_width"], 
+                                                                      np.array(module.gelu_config["data_in_block_size"]))
         layer_stats[layer_name] = profile_result
     elif isinstance(module, CrossAttention):
         profile_result = profile_matmul_layer(module.config_0, module.q.shape, module.k.shape)
