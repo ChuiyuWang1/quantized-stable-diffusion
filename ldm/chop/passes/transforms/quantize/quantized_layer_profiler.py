@@ -194,9 +194,9 @@ def profile_conv1d_layer(
         "flops": 0,
         "flops_bitwidth": 0,
     """
-    w_shape = np.array((out_channels, in_channels, kernel_size))
+    w_shape = np.array((out_channels, kernel_size, in_channels))
     b_shape = np.array((out_channels,))
-    x_shape = np.array((batch_size, in_channels, sequence_length))
+    x_shape = np.array((batch_size, sequence_length, in_channels))
 
     w_width = quant_config["weight_width"]
     x_width = quant_config["data_in_width"]
@@ -279,9 +279,9 @@ def profile_conv2d_layer(
         "flops": 0,
         "flops_bitwidth": 0,
     """
-    w_shape = np.array((out_channels, in_channels, kernel_size*kernel_size))
+    w_shape = np.array((out_channels, kernel_size * kernel_size, in_channels))
     b_shape = np.array((out_channels,))
-    x_shape = np.array((batch_size, in_channels, height*width))
+    x_shape = np.array((batch_size, height * width, in_channels))
 
     w_width = quant_config["weight_width"]
     x_width = quant_config["data_in_width"]

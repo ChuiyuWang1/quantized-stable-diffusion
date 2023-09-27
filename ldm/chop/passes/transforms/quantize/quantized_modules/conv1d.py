@@ -444,6 +444,23 @@ class Conv1dBlockFP(_Conv1dBase):
             skip_first_dim=False,
         )
 
+    def forward(self, x: Tensor) -> Tensor:
+        if self.bypass:
+            return self._conv_forward(x, self.weight, self.bias)
+        # permute activation, so that the blocking not taking place in the image size dimension
+        x = torch.permute(x, (0, 2, 1))
+        x = self.x_quantizer(x)
+        x = torch.permute(x, (0, 2, 1))
+        w = self.weight
+        # permute weight, so that the blocking not taking place in the kernel dimension
+        w = torch.permute(w, (0, 2, 1))
+        w = self.w_quantizer(w)
+        w = torch.permute(w, (0, 2, 1))
+        bias = self.b_quantizer(self.bias) if self.bias is not None else None
+        # WARNING: this may have been simplified, we are assuming here the accumulation is lossless!
+        # The addition size is in_channels * K * K
+        return self._conv_forward(x, w, bias)
+
 
 class Conv1dBlockMinifloat(_Conv1dBase):
     def __init__(

@@ -516,12 +516,18 @@ class Conv2dBlockFP(_Conv2dBase):
             return self._conv_forward(x, self.weight, self.bias)
         x_shape = [i for i in x.shape]
         w_shape = [i for i in self.weight.shape]
-        # a hack for handling 4D block/unblock
-        x = torch.flatten(x, 0, 1)
+        # reshape the activation and the weights for handling 4D block/unblock
+        x = torch.reshape(x, (x_shape[0], x_shape[1], -1))
+        # permute activation, so that the blocking not taking place in the image size dimension
+        x = torch.permute(x, (0, 2, 1))
         x = self.x_quantizer(x)
+        x = torch.permute(x, (0, 2, 1))
         x = torch.reshape(x, x_shape)
-        w = torch.flatten(self.weight, 0, 1)
+        w = torch.reshape(self.weight, (w_shape[0], w_shape[1], -1))
+        # permute weight, so that the blocking not taking place in the kernel dimension
+        w = torch.permute(w, (0, 2, 1))
         w = self.w_quantizer(w)
+        w = torch.permute(w, (0, 2, 1))
         w = torch.reshape(w, w_shape)
         bias = self.b_quantizer(self.bias) if self.bias is not None else None
         # WARNING: this may have been simplified, we are assuming here the accumulation is lossless!
