@@ -455,11 +455,12 @@ class LinearBlockLog(_LinearBase):
         )
         x_skip_first_dim = config.get("data_in_skip_first_dim", True)
 
-        b_width, b_exponent_bias_width, b_block_size = (
-            config["bias_width"],
-            config["bias_exponent_bias_width"],
-            config["bias_block_size"],
-        )
+        if self.bias is not None:
+            b_width, b_exponent_bias_width, b_block_size = (
+                config["bias_width"],
+                config["bias_exponent_bias_width"],
+                config["bias_block_size"],
+            )
 
         # blocking/unblocking 4D kernel/feature map is not supported
         self.w_quantizer = partial(
@@ -482,7 +483,7 @@ class LinearBlockLog(_LinearBase):
             exponent_bias_width=b_exponent_bias_width,
             block_size=b_block_size,
             skip_first_dim=False,
-        )
+        ) if self.bias is not None else None
 
 
 class LinearBinary(_LinearBase):
