@@ -330,7 +330,7 @@ class LinearBlockFP(_LinearBase):
             config["bias_exponent_width"],
             config["bias_exponent_bias"],
             config["bias_block_size"],
-        )
+        ) if self.bias is not None else (None, None, None, None)
 
         # blocking/unblocking 4D kernel/feature map is not supported
         self.w_quantizer = partial(
@@ -356,7 +356,7 @@ class LinearBlockFP(_LinearBase):
             exponent_bias=b_exponent_bias,
             block_size=b_block_size,
             skip_first_dim=False,
-        )
+        ) if self.bias is not None else None
 
 
 class LinearBlockMinifloat(_LinearBase):
